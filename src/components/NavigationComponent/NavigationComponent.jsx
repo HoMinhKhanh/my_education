@@ -1,5 +1,5 @@
 import React from 'react';
-import { HomeOutlined, CreditCardOutlined, NodeCollapseOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { HomeFilled, ReadFilled, GoldenFilled, PlusCircleFilled } from '@ant-design/icons';
 import { WrapperNavBar, WrapperNavBarA, WrapperNavBarLi, WrapperNavigation } from './style';
 
 // function getItem(label, key, icon, children, type) {
@@ -32,25 +32,25 @@ const NavigationComponent = () => {
                 <WrapperNavBar>
                     <WrapperNavBarLi>
                         <WrapperNavBarA href="/create-news">
-                            <PlusCircleOutlined style={{ fontSize: '28px'}} />
+                            <PlusCircleFilled style={{ fontSize: '28px'}} />
                             <span>Viết Blog</span>
                         </WrapperNavBarA>
                     </WrapperNavBarLi>
                     <WrapperNavBarLi>
                         <WrapperNavBarA href="/">
-                            <HomeOutlined style={{ fontSize: '28px'}} />
+                            <HomeFilled style={{ fontSize: '28px'}} />
                             <span>Trang chủ</span>
                         </WrapperNavBarA>
                     </WrapperNavBarLi>
                     <WrapperNavBarLi>
                         <WrapperNavBarA href="/news">
-                            <CreditCardOutlined style={{ fontSize: '28px'}} />
+                            <ReadFilled style={{ fontSize: '28px'}} />
                             <span>Tin tức</span>
                         </WrapperNavBarA>
                     </WrapperNavBarLi>
                     <WrapperNavBarLi>
                         <WrapperNavBarA href="/learning-paths">
-                            <NodeCollapseOutlined style={{ fontSize: '28px'}} />
+                            <GoldenFilled style={{ fontSize: '28px'}} />
                             <span>Lộ trình</span>
                         </WrapperNavBarA>
                     </WrapperNavBarLi>

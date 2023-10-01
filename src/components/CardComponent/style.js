@@ -35,4 +35,5 @@ export const WrapperButton = styled.button`
     border-radius: 16px;
     height: 36px;
     font-weight: 600;
+    cusor: pointer;
 `

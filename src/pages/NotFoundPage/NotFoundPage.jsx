@@ -1,9 +1,13 @@
 import React from 'react';
+import { Button, Result } from 'antd';
 
-const NotFoundPage = () => {
-    return (
-        <div>NotFoundPage</div>
-    )
-}
-
-export default NotFoundPage
+const NotFoundPage = () => (
+  <Result
+    status="404"
+    title="404"
+    subTitle="Sorry, the page you visited does not exist."
+    extra={<Button href="/" type="primary">Back Home</Button>}
+    style={{ height: '100vh' }}
+  />
+);
+export default NotFoundPage;

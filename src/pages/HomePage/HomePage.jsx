@@ -1,6 +1,6 @@
 import React from 'react';
 import TypeProduct from '../../components/TypeProduct/TypeProduct';
-import { WrapperCourseName, WrapperTypeProduct } from './style';
+import { WrapperButtonHover, WrapperCourseName, WrapperProducts, WrapperTypeProduct } from './style';
 import SilderComponent from '../../components/SilderComponent/SilderComponent';
 import slider1 from '../../assets/images/slider1.jpg'
 import slider2 from '../../assets/images/slider2.jpg'
@@ -25,13 +25,30 @@ const HomePage = () => {
                 <div>
                     <WrapperCourseName>Khóa học mới</WrapperCourseName>
                 </div>
-                <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                <WrapperProducts>
                     <CardComponent />
                     <CardComponent />
                     <CardComponent />
                     <CardComponent />
                     <CardComponent />
                     <CardComponent />
+                    <CardComponent />
+                    <CardComponent />
+                </WrapperProducts>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                    <WrapperButtonHover textButton='Xem thêm' type='default' 
+                        style={{
+                            fontSize: '1.6rem',
+                            marginTop: '16px',
+                            minWidth: '180px',
+                            backgroundColor: '#f05123',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '16px',
+                            height: '36px',
+                            fontWeight: '600',
+                        }}
+                    />
                 </div>
             </div>
         </div>

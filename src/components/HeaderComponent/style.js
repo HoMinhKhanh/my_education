@@ -34,7 +34,7 @@ export const WrapperTextHeader = styled.span`
 `
 export const WrapperTextHeaderSmall = styled.span`
     font-size: 1.2rem;
-    color: #333;
+    color: #404040;
     font-weight: 600;
     white-space: nowrap;
 `
@@ -43,6 +43,6 @@ export const WrapperHeaderAccount = styled.div`
     display: flex;
     align-items: center;
     gap: 20px;
-    color: #333;
+    color: #404040;
     float: right;
 `

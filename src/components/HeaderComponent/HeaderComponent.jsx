@@ -1,7 +1,7 @@
 import React from 'react';
-import { Col } from 'antd';
+import { Badge, Col } from 'antd';
 import { WrapperColHeader, WrapperHeader, WrapperHeaderAccount, WrapperLogoHeader, WrapperTextHeader, WrapperTextHeaderSmall } from './style';
-import { UserOutlined, CaretDownOutlined, BookOutlined } from '@ant-design/icons';
+import { SmileFilled, CaretDownOutlined, BookFilled } from '@ant-design/icons';
 import ButtonInputSearch from '../ButtonInputSearch/ButtonInputSearch';
 import Logo from '../../assets/logo/2.png';
 
@@ -26,11 +26,13 @@ const HeaderComponent = () => {
                 <Col span={8}>
                     <WrapperHeaderAccount>
                         <div>
-                            <BookOutlined style={{ fontSize: '28px'}} />
+                            <Badge count={4}>
+                                <BookFilled style={{ fontSize: '28px', color: '#404040' }} />
+                            </Badge>
                             <WrapperTextHeaderSmall>Khóa học của tôi</WrapperTextHeaderSmall>
                         </div>
                         <div>
-                            <UserOutlined style={{ fontSize: '28px' }} />
+                            <SmileFilled style={{ fontSize: '28px' }} />
                         </div>
                         <div>
                             <WrapperTextHeaderSmall>Đăng nhập/Đăng ký</WrapperTextHeaderSmall>

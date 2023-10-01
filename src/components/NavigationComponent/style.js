@@ -42,4 +42,8 @@ export const WrapperNavBarA = styled.a`
     justify-content: center;
     margin-top: 4px;
     width: 72px;
+    &:hover {
+        background-color: #e8ebed;
+        color: #1a1a1a;
+    }
 `
