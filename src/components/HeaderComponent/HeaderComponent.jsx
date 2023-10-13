@@ -4,9 +4,16 @@ import { WrapperColHeader, WrapperHeader, WrapperHeaderAccount, WrapperLogoHeade
 import { SmileFilled, CaretDownOutlined, BookFilled } from '@ant-design/icons';
 import ButtonInputSearch from '../ButtonInputSearch/ButtonInputSearch';
 import Logo from '../../assets/logo/2.png';
+import { useNavigate } from 'react-router-dom';
 
 
 const HeaderComponent = () => {
+
+    const navigate = useNavigate()
+    const handleNavigateLogin = () => {
+        navigate('/sign-in')
+    }
+
     return (
         <div>
             <WrapperHeader>
@@ -34,7 +41,7 @@ const HeaderComponent = () => {
                         <div>
                             <SmileFilled style={{ fontSize: '28px' }} />
                         </div>
-                        <div>
+                        <div onClick={handleNavigateLogin} style={{ cursor: 'pointer' }}>
                             <WrapperTextHeaderSmall>Đăng nhập/Đăng ký</WrapperTextHeaderSmall>
                             <div>
                                 <WrapperTextHeaderSmall>Tài khoản</WrapperTextHeaderSmall>

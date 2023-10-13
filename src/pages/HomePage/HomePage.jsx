@@ -36,8 +36,8 @@ const HomePage = () => {
                     <CardComponent />
                 </WrapperProducts>
                 <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                    <WrapperButtonHover textButton='Xem thêm' type='default' 
-                        style={{
+                    <WrapperButtonHover textButton={'Xem thêm'} type={'default'} 
+                        styleButton={{
                             fontSize: '1.6rem',
                             marginTop: '16px',
                             minWidth: '180px',

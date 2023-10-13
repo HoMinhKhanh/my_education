@@ -7,6 +7,7 @@ import TypeProductPage from "../pages/TypeProductPage/TypeProductPage";
 import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
 import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
+import LessonDetailsPage from "../pages/LessonDetailsPage/LessonDetailsPage";
 
 export const routes = [
     {
@@ -32,6 +33,11 @@ export const routes = [
     {
         path: '/product-details',
         page: ProductDetailsPage,
+        isShowHeader: true,
+    },
+    {
+        path: '/lesson-details',
+        page: LessonDetailsPage,
         isShowHeader: true,
     },
     {
