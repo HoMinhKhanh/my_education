@@ -1,21 +1,47 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { WrapperButtonHover, WrapperContainer, WrapperContainerBackground, WrapperContainerHeadingH4, WrapperContainerHeadingP, WrapperContainerImageH4, WrapperContainerImageSpan, WrapperContainerLeft, WrapperContainerRight, WrapperContainerSignUpA, WrapperContainerSignUpP, WrapperLogoImage } from './style';
 import InputForm from '../../components/InputForm/InputForm';
 import ImageLogin from '../../assets/images/image-login.png';
 import ImageLogo from '../../assets/logo/2.png';
 import { EyeFilled, EyeInvisibleFilled } from '@ant-design/icons';
-import * as UserService from '../../services/UserService'
+import * as UserService from '../../services/UserService';
 import { useMutationHooks } from '../../hooks/useMutationHook';
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent';
+import { useNavigate } from 'react-router-dom';
+import jwt_decode from "jwt-decode";
+import { useDispatch } from 'react-redux';
+import { updateUser } from '../../redux/slides/userSlide';
 
 const SignInPage = () => {
     const [isShowPassword, setIsShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    
+    const mutation = useMutationHooks(
+        data => UserService.loginUser(data)
+    )
 
-    const mutation = useMutationHooks(data => UserService.loginUser(data))
+    const { data, isLoading, isSuccess } = mutation
 
-    const { data, isLoading } = mutation
+    useEffect(() => {
+        if (isSuccess) {
+            navigate('/')
+            localStorage.setItem('access_token', JSON.stringify(data?.access_token))
+            if(data?.access_token) {
+                const decoded = jwt_decode(data?.access_token);
+                if(decoded?.id){
+                    handleGetDetailsUser(decoded.id, data?.access_token)
+                }
+            }
+        }
+    }, [isSuccess])
+
+    const handleGetDetailsUser = async (id, token) => {
+        const res = await UserService.getDetailsUser(id, token)
+        dispatch(updateUser({...res?.data, access_token: token}))
+    }
 
     const handleOnChangeEmail = (value) => {
         setEmail(value)

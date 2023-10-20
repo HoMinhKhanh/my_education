@@ -8,7 +8,7 @@ import * as UserService from '../../services/UserService'
 import { useMutationHooks } from '../../hooks/useMutationHook';
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent';
 import { useNavigate } from 'react-router-dom';
-import * as message from '../../components/MessageComponent/MessageComponent'
+import * as message from '../../components/MessageComponent/MessageComponent';
 
 const SignUpPage = () => {
     const [isShowPassword, setIsShowPassword] = useState(false);

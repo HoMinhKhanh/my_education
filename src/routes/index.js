@@ -8,6 +8,7 @@ import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
 import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
 import LessonDetailsPage from "../pages/LessonDetailsPage/LessonDetailsPage";
+import ProfilePage from "../pages/ProfilePage/ProfilePage";
 
 export const routes = [
     {
@@ -53,6 +54,11 @@ export const routes = [
     {
         path: '/learning-paths',
         page: LearningPathsPage,
+        isShowHeader: true,
+    },
+    {
+        path: '/profile-user',
+        page: ProfilePage,
         isShowHeader: true,
     },
     {

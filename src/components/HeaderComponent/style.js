@@ -27,16 +27,17 @@ export const WrapperLogoHeader = styled.img`
 `
 
 export const WrapperTextHeader = styled.span`
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     color: #000;
     font-weight: 700;
     margin-left: 16px;
 `
 export const WrapperTextHeaderSmall = styled.span`
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     color: #404040;
     font-weight: 600;
     white-space: nowrap;
+    cursor: pointer;
 `
 
 export const WrapperHeaderAccount = styled.div`
@@ -45,4 +46,15 @@ export const WrapperHeaderAccount = styled.div`
     gap: 20px;
     color: #404040;
     float: right;
+`
+
+export const WrapperContentPopup = styled.p`
+    color: #666;
+    cursor: pointer;
+    display: block;
+    font-size: 1.4rem;
+    padding: 10px 10px;
+    &:hover {
+        color: #f05123;
+    }
 `

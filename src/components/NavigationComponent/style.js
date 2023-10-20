@@ -1,11 +1,4 @@
 import styled from 'styled-components';
-// import { Menu } from 'antd';
-
-// export const WrapperNavigation = styled(Menu)`
-//     height: 100%;
-//     width: 148px;
-//     font-size: 1.4rem;
-// `
 
 export const WrapperNavigation = styled.div`
     height: auto;
@@ -15,6 +8,7 @@ export const WrapperNavigation = styled.div`
     align-items: center;
     display: flex;
     flex-direction: column;
+    min-height: 800px;
 `
 
 export const WrapperNavBar = styled.ul`
