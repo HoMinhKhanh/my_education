@@ -6,9 +6,17 @@ import slider1 from '../../assets/images/slider1.jpg'
 import slider2 from '../../assets/images/slider2.jpg'
 import slider3 from '../../assets/images/slider3.jpg'
 import CardComponent from '../../components/CardComponent/CardComponent';
+import { useQuery } from '@tanstack/react-query';
+import * as CourseService from '../../services/CourseService'
 
 const HomePage = () => {
     const arr = ['Toán', 'Ngữ văn', 'Tiếng Anh'];
+    const fetchProductAll =  async () => {
+        const res = await CourseService.getAllCourse()
+        return res
+    }
+    const {isLoading, data: courses} = useQuery(['courses'], fetchProductAll, { retry: 3, retryDelay: 1000 })
+    console.log('courses', courses)
     return (
         <div style={{ width: 'calc(100% - 96px)' }}>
             <div>
@@ -26,14 +34,21 @@ const HomePage = () => {
                     <WrapperCourseName>Khóa học mới</WrapperCourseName>
                 </div>
                 <WrapperProducts>
-                    <CardComponent />
-                    <CardComponent />
-                    <CardComponent />
-                    <CardComponent />
-                    <CardComponent />
-                    <CardComponent />
-                    <CardComponent />
-                    <CardComponent />
+                    {courses?.data?.map((course) => {
+                        return(
+                            <CardComponent 
+                                key={course._id} 
+                                description={course.description} 
+                                image={course.image}
+                                level={course.level}
+                                name={course.name}
+                                price={course.price}
+                                type={course.type}
+                                listLessons={course.listLessons}
+                                member={course.member}
+                            />
+                        )
+                    })}
                 </WrapperProducts>
                 <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                     <WrapperButtonHover textButton={'Xem thêm'} type={'default'} 

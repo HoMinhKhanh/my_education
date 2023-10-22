@@ -11,6 +11,7 @@ export const StyleNameProduct = styled.div`
 export const WrapperDescription = styled.div`
     color: #666;
     font-size: 1.4rem;
+    margin-bottom: 12px;
 `
 
 export const WrapperPrice = styled.span`

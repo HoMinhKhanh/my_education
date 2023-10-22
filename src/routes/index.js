@@ -9,6 +9,7 @@ import SignUpPage from "../pages/SignUpPage/SignUpPage";
 import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
 import LessonDetailsPage from "../pages/LessonDetailsPage/LessonDetailsPage";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
+import AdminPage from "../pages/AdminPage/AdminPage";
 
 export const routes = [
     {
@@ -60,6 +61,12 @@ export const routes = [
         path: '/profile-user',
         page: ProfilePage,
         isShowHeader: true,
+    },
+    {
+        path: '/system/admin',
+        page: AdminPage,
+        isShowHeader: false,
+        isPrivated: true,
     },
     {
         path: '*',
