@@ -10,6 +10,9 @@ import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
 import LessonDetailsPage from "../pages/LessonDetailsPage/LessonDetailsPage";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
 import AdminPage from "../pages/AdminPage/AdminPage";
+import FogotPasword from "../pages/FogotPassword/Forgotpassword";
+import Forgotpassword3 from "../pages/ForgotPassword3/FogotPassword3";
+import Forgotpassword4 from "../pages/ForgotPassword4/FogotPassword4";
 
 export const routes = [
     {
@@ -33,12 +36,12 @@ export const routes = [
         isShowHeader: false,
     },
     {
-        path: '/product-details',
+        path: '/product-details/:id',
         page: ProductDetailsPage,
         isShowHeader: true,
     },
     {
-        path: '/lesson-details',
+        path: '/lesson-details/:id',
         page: LessonDetailsPage,
         isShowHeader: true,
     },
@@ -65,6 +68,24 @@ export const routes = [
     {
         path: '/system/admin',
         page: AdminPage,
+        isShowHeader: false,
+        isPrivated: true,
+    },
+    {
+        path: '/fogotPassword',
+        page: FogotPasword,
+        isShowHeader: false,
+        isPrivated: true,
+    },
+    {
+        path: '/fogotPassword2/:id',
+        page: Forgotpassword3,
+        isShowHeader: false,
+        isPrivated: true,
+    },
+    {
+        path: '/fogotPassword3',
+        page: Forgotpassword4,
         isShowHeader: false,
         isPrivated: true,
     },

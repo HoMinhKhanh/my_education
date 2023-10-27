@@ -149,7 +149,7 @@ const SignUpPage = () => {
                         <WrapperContainerSignUpP>Bạn đã có tài khoản? 
                             <WrapperContainerSignUpA href="/sign-in"> Đăng nhập</WrapperContainerSignUpA>
                             <br/>
-                            <WrapperContainerSignUpA href="/sign-in"> Quên mật khẩu?</WrapperContainerSignUpA>
+                            <WrapperContainerSignUpA href="/forgot-password"> Quên mật khẩu?</WrapperContainerSignUpA>
                         </WrapperContainerSignUpP>
                         
                     </div>

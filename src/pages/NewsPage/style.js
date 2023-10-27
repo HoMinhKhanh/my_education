@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const WrapperNewsPage = styled.div`
-    max-width: calc(100% - 96px);
+    width: calc(100% - 96px);
     padding: 0 40px 0 20px;
     min-height: 800px;
     background-color: #fff;
