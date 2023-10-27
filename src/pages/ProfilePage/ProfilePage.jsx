@@ -23,7 +23,7 @@ const ProfilePage = () => {
     const mutation = useMutationHooks(
         (data) => {
             const { id, access_token, ...rests } = data
-            UserService.updateUser(id, rests, access_token)
+            UserService.updateUser(id, access_token, rests)
         }
     )
 
@@ -139,13 +139,6 @@ const ProfilePage = () => {
                                 <img src={avatar} style={{ height: '60px', width: '60px', objectFit: 'cover', borderRadius: '50%' }} alt='avatar' />
                             )}
                         </div>
-                        {/* <InputForm
-                            size='large'
-                            id='avatar'
-                            style={{ width: '70%' }}
-                            value={avatar}
-                            onChange={handleOnChangeAvatar}
-                        /> */}
                         <WrapperButtonHover
                             onClick={handleUpdate}
                             textButton={'Cập nhật'} 

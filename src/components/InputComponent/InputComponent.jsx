@@ -1,9 +1,9 @@
-import { Input } from 'antd';
 import React from 'react';
+import { WrapperInputStyle } from './style';
 
 const InputComponent = ({size, placeholder, ...rests }) => {
     return (
-        <Input 
+        <WrapperInputStyle 
             size={size} 
             placeholder={placeholder} 
             bordered={false}

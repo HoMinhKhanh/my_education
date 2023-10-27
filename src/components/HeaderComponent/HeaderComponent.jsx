@@ -27,6 +27,7 @@ const HeaderComponent = () => {
         dispatch(resetUser())
         localStorage.removeItem('access_token')
         setLoading(false)
+        navigate('/sign-in')
     }
 
     useEffect(() => {
