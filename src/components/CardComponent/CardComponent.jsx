@@ -5,7 +5,6 @@ import { TeamOutlined } from '@ant-design/icons';
 
 const CardComponent = (props) => {
     const { description, image, level, name, price, type, member, listLessons} = props
-    console.log('props', props)
 
     return (
         <Card

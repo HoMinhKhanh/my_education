@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { WrapperHeader } from './style';
 import { Button, Form, Space } from 'antd';
-import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 import TableComponent from '../TableComponent/TableComponent';
 import InputComponent from '../InputComponent/InputComponent'
 import * as UserService from '../../services/UserService';

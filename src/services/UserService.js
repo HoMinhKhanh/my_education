@@ -21,6 +21,11 @@ export const getDetailsUser = async (id, access_token) => {
     return res.data
 }
 
+export const getProfileUser = async (id) => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/user/get-profile/${id}`)
+    return res.data
+}
+
 export const getAllUser = async (access_token) => {
     const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/user/getAll`, {
         headers: {

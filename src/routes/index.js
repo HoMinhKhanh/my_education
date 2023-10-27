@@ -33,12 +33,12 @@ export const routes = [
         isShowHeader: false,
     },
     {
-        path: '/product-details',
+        path: '/product-details/:id',
         page: ProductDetailsPage,
         isShowHeader: true,
     },
     {
-        path: '/lesson-details',
+        path: '/lesson-details/:id',
         page: LessonDetailsPage,
         isShowHeader: true,
     },
