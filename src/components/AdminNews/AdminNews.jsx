@@ -49,13 +49,30 @@ const AdminNews = () => {
         }
     )
 
+    const mutationDeleteMany = useMutationHooks(
+        (data) => {
+            const { access_token, ...ids } = data
+            const res = NewsService.deleteManyNews( ids, access_token)
+            return res
+        }
+    )
+
     const getAllNews = async () => {
         const res = await NewsService.getAllNews()
         return res
     }
+
+    const handleDeleteManyNews = (ids) => {
+        mutationDeleteMany.mutate({ ids: ids, access_token: user?.access_token }, {
+            onSettled: () => {
+                queryNews.refetch()
+            }
+        })
+    }
     
     const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
+    const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
 
     const queryNews = useQuery({queryKey : ['news'], queryFn : getAllNews})
     const { isLoading : isLoadingNews, data : allNews } = queryNews
@@ -82,7 +99,7 @@ const AdminNews = () => {
             setIsLoadingUpdate(true)
             fetchGetDetailsNews(rowSelected)
         }
-    },[rowSelected])
+    },[rowSelected, isOpenDrawer])
 
     const handleDetailsNews = () => {
         setIsOpenDrawer(true)
@@ -225,6 +242,14 @@ const AdminNews = () => {
         }
     },[isSuccessDeleted, isErrorDeleted])
 
+    useEffect(() => {
+        if(isSuccessDeletedMany && dataDeletedMany?.status === 'OK'){
+            message.success()
+        } else if (isErrorDeletedMany) {
+            message.error()
+        }
+    },[isSuccessDeletedMany, isErrorDeletedMany])
+
     const handleCancelDrawer = () => {
         setIsOpenDrawer(false);
         setstateNewsDetails({
@@ -267,7 +292,7 @@ const AdminNews = () => {
         <div>
             <WrapperHeader>Quản lý tin tức</WrapperHeader>
             <div style={{ marginTop: '16px' }}>
-                <TableComponent onChange={handleChange} columns={columns} isLoading={isLoadingNews} data={dataTable} onRow={(record, rowIndex) => {
+                <TableComponent handleDeleteMany={handleDeleteManyNews} onChange={handleChange} columns={columns} isLoading={isLoadingNews} data={dataTable} onRow={(record, rowIndex) => {
                     return {
                         onClick: (event) => {
                             setRowSelected(record._id)

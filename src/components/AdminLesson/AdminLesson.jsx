@@ -67,14 +67,31 @@ const AdminLesson = () => {
         }
     )
 
+    const mutationDeleteMany = useMutationHooks(
+        (data) => {
+            const { access_token, ...ids } = data
+            const res = LessonService.deleteManyLesson( ids, access_token)
+            return res
+        }
+    )
+
     const getAllCourses = async () => {
         const res = await LessonService.getAllLesson()
         return res
+    }
+
+    const handleDeleteManyLesson = (ids) => {
+        mutationDeleteMany.mutate({ ids: ids, access_token: user?.access_token }, {
+            onSettled: () => {
+                queryLesson.refetch()
+            }
+        })
     }
     
     const { data, isLoading, isSuccess, isError } = mutation
     const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
+    const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
 
     const queryLesson = useQuery({queryKey : ['lessons'], queryFn : getAllCourses})
     const { isLoading : isLoadingLessons, data : lessons } = queryLesson
@@ -102,7 +119,7 @@ const AdminLesson = () => {
             setIsLoadingUpdate(true)
             fetchGetDetailsLesson(rowSelected)
         }
-    },[rowSelected])
+    },[rowSelected, isOpenDrawer])
 
     const handleDetailsLesson = () => {
         setIsOpenDrawer(true)
@@ -270,6 +287,14 @@ const AdminLesson = () => {
         }
     },[isSuccessDeleted, isErrorDeleted])
 
+    useEffect(() => {
+        if(isSuccessDeletedMany && dataDeletedMany?.status === 'OK'){
+            message.success()
+        } else if (isErrorDeletedMany) {
+            message.error()
+        }
+    },[isSuccessDeletedMany, isErrorDeletedMany])
+
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -347,7 +372,7 @@ const AdminLesson = () => {
                 <PlusOutlined style={{ fontSize: '2.4rem', color: '#404040' }} />
             </Button>
             <div style={{ marginTop: '16px' }}>
-                <TableComponent onChange={handleChange} columns={columns} isLoading={isLoadingLessons} data={dataTable} onRow={(record, rowIndex) => {
+                <TableComponent handleDeleteMany={handleDeleteManyLesson} onChange={handleChange} columns={columns} isLoading={isLoadingLessons} data={dataTable} onRow={(record, rowIndex) => {
                     return {
                         onClick: (event) => {
                             setRowSelected(record._id)

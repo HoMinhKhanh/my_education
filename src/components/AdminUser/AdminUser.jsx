@@ -48,14 +48,31 @@ const AdminUser = () => {
         }
     )
 
+    const mutationDeleteMany = useMutationHooks(
+        (data) => {
+            const { access_token, ...ids } = data
+            const res = UserService.deleteManyUser( ids, access_token)
+            return res
+        }
+    )
+
     const getAllUsers = async () => {
         const access_token = user.access_token
         const res = await UserService.getAllUser(access_token)
         return res
     }
+
+    const handleDeleteManyUser = (ids) => {
+        mutationDeleteMany.mutate({ ids: ids, access_token: user?.access_token }, {
+            onSettled: () => {
+                queryUser.refetch()
+            }
+        })
+    }
     
     const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
+    const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
 
     const queryUser = useQuery({queryKey : ['user'], queryFn : getAllUsers})
     const { isLoading : isLoadingUsers, data : users } = queryUser
@@ -82,7 +99,7 @@ const AdminUser = () => {
             setIsLoadingUpdate(true)
             fetchGetDetailsUser(rowSelected, user.access_token)
         }
-    },[rowSelected])
+    },[rowSelected, isOpenDrawer])
 
     const handleDetailsUser = () => {
         setIsOpenDrawer(true)
@@ -225,6 +242,14 @@ const AdminUser = () => {
         }
     },[isSuccessDeleted, isErrorDeleted])
 
+    useEffect(() => {
+        if(isSuccessDeletedMany && dataDeletedMany?.status === 'OK'){
+            message.success()
+        } else if (isErrorDeletedMany) {
+            message.error()
+        }
+    },[isSuccessDeletedMany, isErrorDeletedMany])
+
     const handleCancelDrawer = () => {
         setIsOpenDrawer(false);
         setstateUserDetails({
@@ -267,7 +292,7 @@ const AdminUser = () => {
         <div>
             <WrapperHeader>Quản lý tài khoản</WrapperHeader>
             <div style={{ marginTop: '16px' }}>
-                <TableComponent onChange={handleChange} columns={columns} isLoading={isLoadingUsers} data={dataTable} onRow={(record, rowIndex) => {
+                <TableComponent handleDeleteMany={handleDeleteManyUser} onChange={handleChange} columns={columns} isLoading={isLoadingUsers} data={dataTable} onRow={(record, rowIndex) => {
                     return {
                         onClick: (event) => {
                             setRowSelected(record._id)

@@ -34,3 +34,12 @@ export const deleteCourse = async (id, access_token) => {
     })
     return res.data
 }
+
+export const deleteManyCourse = async (data, access_token) => {
+    const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/course/delete-many-course`, data, {
+        headers: {
+            token: `Bearer ${access_token}`,
+        }
+    })
+    return res.data
+}
