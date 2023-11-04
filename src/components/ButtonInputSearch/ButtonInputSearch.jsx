@@ -5,11 +5,11 @@ import ButtonComponent from '../ButtonComponent/ButtonComponent';
 import InputComponent from '../InputComponent/InputComponent';
 
 const ButtonInputSearch = (props) => {
-    const { size, placeholder, textButton} = props;
+    const { size, placeholder, textbutton} = props;
     return (
         <WrapperTextButton>
-            <InputComponent size={size} placeholder={placeholder} bordered={false} />
-            <ButtonComponent size={size} type="text" icon={<SearchOutlined />} textButton={textButton} />
+            <InputComponent size={size} placeholder={placeholder} bordered={false} {...props} />
+            <ButtonComponent size={size} type="text" icon={<SearchOutlined />} textButton={textbutton} />
         </WrapperTextButton>
     )
 }

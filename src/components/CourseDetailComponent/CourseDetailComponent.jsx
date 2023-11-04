@@ -2,8 +2,14 @@ import React from 'react';
 import { PlayCircleFilled, MehFilled, HourglassFilled, SafetyCertificateFilled } from '@ant-design/icons';
 import { WrapperButtonHover, WrapperCourseDetail, WrapperCourseDetailH5, WrapperCourseDetailLi, WrapperCourseDetailSpan, WrapperCourseDetailUl } from './style';
 import { Image } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
-const CourseDetailComponent = () => {
+const CourseDetailComponent = ({courseDetails, lessons}) => {
+    const navigate = useNavigate()
+
+    const handleDetailsLesson = (id) => {
+        navigate(`/lesson-details/${id}`)
+    }
     return (
         <div>
             <WrapperCourseDetail>
@@ -13,8 +19,8 @@ const CourseDetailComponent = () => {
                         margin: '2px 0px 20px',
                     }}>
                     <Image 
-                        src={'https://i.ytimg.com/vi/6ZcGSYn9Ark/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAptGmj8g7I7_nt17ZmbM9N96vLGw'}
-                        alt="image course"
+                        src={courseDetails?.image}
+                        alt={courseDetails?.name}
                         preview={false}
                         style={{
                             boxShadow: 'rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px',
@@ -24,9 +30,12 @@ const CourseDetailComponent = () => {
                     <PlayCircleFilled style={{ position: 'absolute', left: '43%', top: '43%', fontSize: '6rem', color: '#333' }}/>
                 </div>
                 <WrapperCourseDetailH5>
-                    Miễn phí
+                    {courseDetails?.price ? `${courseDetails?.price.toLocaleString()}đ` : 'Miễn phí' }
                 </WrapperCourseDetailH5>
-                <WrapperButtonHover textButton='Đăng ký học' type='default' 
+                <WrapperButtonHover 
+                    onClick={() => handleDetailsLesson(courseDetails?._id)}
+                    textButton='Đăng ký học' 
+                    type='default' 
                     style={{
                         fontSize: '1.6rem',
                         marginTop: '16px',
@@ -42,11 +51,11 @@ const CourseDetailComponent = () => {
                 <WrapperCourseDetailUl>
                     <WrapperCourseDetailLi>
                         <SafetyCertificateFilled />
-                        <WrapperCourseDetailSpan>Trình độ cơ bản</WrapperCourseDetailSpan>
+                        <WrapperCourseDetailSpan>Trình độ <strong>{courseDetails?.level}</strong></WrapperCourseDetailSpan>
                     </WrapperCourseDetailLi>
                     <WrapperCourseDetailLi>
                         <HourglassFilled />
-                        <WrapperCourseDetailSpan>Tổng số <strong>138</strong> bài học</WrapperCourseDetailSpan>
+                        <WrapperCourseDetailSpan>Tổng số <strong>{lessons?.total}</strong> bài học</WrapperCourseDetailSpan>
                     </WrapperCourseDetailLi>
                     <WrapperCourseDetailLi>
                         <MehFilled />

@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as UserService from '../../services/UserService';
 import { resetUser } from '../../redux/slides/userSlide';
 import LoadingComponent from '../LoadingComponent/LoadingComponent';
+import { searchCourse } from '../../redux/slides/courseSlide';
 
 const HeaderComponent = () => {
 
@@ -17,6 +18,7 @@ const HeaderComponent = () => {
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState('')
+    const [search, setSearch] = useState('')
     const [avatar, setAvatar] = useState('')
     const handleNavigateLogin = () => {
         navigate('/sign-in')
@@ -51,6 +53,11 @@ const HeaderComponent = () => {
         </div>
     );
 
+    const onSearch = (e) => {
+        setSearch(e.target.value)
+        dispatch(searchCourse(e.target.value))
+    }
+
     return (
         <div>
             <WrapperHeader>
@@ -62,9 +69,10 @@ const HeaderComponent = () => {
                 </WrapperColHeader>
                 <Col span={8}>
                     <ButtonInputSearch
+                        onChange={onSearch}
                         size='large'
                         placeholder='Tìm kiếm khóa học'
-                        textButton=''
+                        textbutton=''
                     />
                 </Col>
                 <Col span={8}>

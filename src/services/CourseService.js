@@ -2,8 +2,13 @@ import axios from "axios"
 
 export const axiosJWT = axios.create()
 
-export const getAllCourse = async () => {
-    const res = await axios.get(`${process.env.REACT_APP_API_URL}/course/get-all-course`)
+export const getAllCourse = async (search, limit) => {
+    let res = {}
+    if (search?.length > 0) {
+        res = await axios.get(`${process.env.REACT_APP_API_URL}/course/get-all-course?filter=name&filter=${search}&limit=${limit}`)
+    } else {
+        res = await axios.get(`${process.env.REACT_APP_API_URL}/course/get-all-course?limit=${limit}`)
+    }
     return res.data
 }
 

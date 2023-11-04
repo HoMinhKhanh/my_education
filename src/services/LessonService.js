@@ -43,3 +43,8 @@ export const deleteManyLesson = async (data, access_token) => {
     })
     return res.data
 }
+
+export const countAllLesson = async (id) => {
+    const res = await axios.post(`${process.env.REACT_APP_API_URL}/lesson/count-lesson/${id}`)
+    return res.data
+}

@@ -2,9 +2,15 @@ import React from 'react';
 import { Card } from 'antd';
 import { StyleNameProduct, WrapperButton, WrapperDescription, WrapperPrice, WrapperPriceSale } from './style';
 import { TeamOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
 const CardComponent = (props) => {
-    const { description, image, level, name, price, type, member, listLessons} = props
+    const { description, image, level, name, price, type, member, listLessons, id } = props
+    const navigate = useNavigate()
+
+    const handleDetailsCourse = (id) => {
+        navigate(`/product-details/${id}`)
+    }
 
     return (
         <Card
@@ -14,6 +20,7 @@ const CardComponent = (props) => {
             }}
             bodyStyle={{ padding: '10px' }}
             cover={<img alt="course" src={image} />}
+            onClick={() => handleDetailsCourse(id)}
         >
             <StyleNameProduct>{name}</StyleNameProduct>
             <WrapperDescription>{description}</WrapperDescription>
@@ -25,7 +32,7 @@ const CardComponent = (props) => {
             </div>
             <div>
                 <WrapperPrice>999.000đ</WrapperPrice>
-                {price === 0 ? <WrapperPriceSale>Miễn phí</WrapperPriceSale> : <WrapperPriceSale>{price}đ</WrapperPriceSale>}
+                {price === 0 ? <WrapperPriceSale>Miễn phí</WrapperPriceSale> : <WrapperPriceSale>{price.toLocaleString()}đ</WrapperPriceSale>}
             </div>
             <WrapperButton>Học ngay</WrapperButton>
         </Card>
