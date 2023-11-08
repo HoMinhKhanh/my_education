@@ -10,6 +10,7 @@ import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
 import LessonDetailsPage from "../pages/LessonDetailsPage/LessonDetailsPage";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
 import AdminPage from "../pages/AdminPage/AdminPage";
+import InstructorPage from "../pages/InstructorPage/InstructorPage";
 
 export const routes = [
     {
@@ -65,6 +66,12 @@ export const routes = [
     {
         path: '/system/admin',
         page: AdminPage,
+        isShowHeader: false,
+        isPrivated: true,
+    },
+    {
+        path: '/system/instructor',
+        page: InstructorPage,
         isShowHeader: false,
         isPrivated: true,
     },

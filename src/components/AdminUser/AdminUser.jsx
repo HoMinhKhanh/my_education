@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { WrapperHeader } from './style';
-import { Button, Form, Space } from 'antd';
-import { DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Form, Select, Space } from 'antd';
+import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 import TableComponent from '../TableComponent/TableComponent';
 import InputComponent from '../InputComponent/InputComponent'
 import * as UserService from '../../services/UserService';
@@ -15,6 +15,7 @@ import ModalComponent from '../ModalComponent/ModalComponent';
 
 const AdminUser = () => {
     const user = useSelector((state) => state?.user)
+    // const [isModalOpen, setIsModalOpen] = useState(false);
     const [rowSelected, setRowSelected] = useState('');
     const [isOpenDrawer, setIsOpenDrawer] = useState(false);
     const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
@@ -22,8 +23,15 @@ const AdminUser = () => {
     const searchInput = useRef(null);
     const [filteredInfo, setFilteredInfo] = useState({});
     const [sortedInfo, setSortedInfo] = useState({});
+    // const [stateUser, setStateUser] = useState({
+    //     name: '', 
+    //     email: '', 
+    //     password: '', 
+    //     role: '', 
+    //     phone: '', 
+    // });
 
-    const [stateUserDetails, setstateUserDetails] = useState({
+    const [stateUserDetails, setStateUserDetails] = useState({
         name: '', 
         email: '', 
         role: '', 
@@ -31,6 +39,14 @@ const AdminUser = () => {
     });
 
     const [form] = Form.useForm();
+
+    // const mutation = useMutationHooks(
+    //     (data) => {
+    //         const { name, email, password, role, phone } = data
+    //         const res = UserService.createUser({name, email, password, role, phone})
+    //         return res
+    //     }
+    // )
 
     const mutationUpdate = useMutationHooks(
         (data) => {
@@ -70,6 +86,7 @@ const AdminUser = () => {
         })
     }
     
+    // const { data, isLoading, isSuccess, isError } = mutation
     const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
     const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
@@ -80,7 +97,7 @@ const AdminUser = () => {
     const fetchGetDetailsUser = async (rowSelected, token) => {
         const res = await UserService.getDetailsUser(rowSelected, token)
         if (res?.data){
-            setstateUserDetails({
+            setStateUserDetails({
                 name: res?.data?.name,
                 email: res?.data?.email,
                 phone: res?.data?.phone,
@@ -97,7 +114,7 @@ const AdminUser = () => {
     useEffect(() =>{
         if (rowSelected && isOpenDrawer) {
             setIsLoadingUpdate(true)
-            fetchGetDetailsUser(rowSelected, user.access_token)
+            fetchGetDetailsUser(rowSelected, user?.access_token)
         }
     },[rowSelected, isOpenDrawer])
 
@@ -181,7 +198,6 @@ const AdminUser = () => {
     });
 
     const handleChange = (pagination, filters, sorter) => {
-        console.log('Various parameters', pagination, filters, sorter);
         setFilteredInfo(filters);
         setSortedInfo(sorter);
     };
@@ -224,6 +240,15 @@ const AdminUser = () => {
       }
     })
 
+    // useEffect(() => {
+    //     if(isSuccess && data?.status === 'OK'){
+    //         message.success()
+    //         handleCancel()
+    //     } else if (isError) {
+    //         message.error()
+    //     }
+    // },[isSuccess, isError])
+
     useEffect(() => {
         if(isSuccessUpdated && dataUpdated?.status === 'OK'){
             message.success()
@@ -250,9 +275,25 @@ const AdminUser = () => {
         }
     },[isSuccessDeletedMany, isErrorDeletedMany])
 
+    // const showModal = () => {
+    //     setIsModalOpen(true);
+    // };
+
+    // const handleCancel = () => {
+    //     setIsModalOpen(false);
+    //     setStateUser({
+    //         name: '', 
+    //         email: '', 
+    //         password: '', 
+    //         role: '', 
+    //         phone: '',
+    //     })
+    //     form.resetFields()
+    // };
+
     const handleCancelDrawer = () => {
         setIsOpenDrawer(false);
-        setstateUserDetails({
+        setStateUserDetails({
             name: '', 
             email: '', 
             phone: '', 
@@ -273,8 +314,23 @@ const AdminUser = () => {
         })
     }
 
+    // const onFinish = () => {
+    //     mutation.mutate(stateUser, {
+    //         onSettled: () => {
+    //             queryUser.refetch()
+    //         }
+    //     })
+    // }
+
+    // const handleOnChange = (e) => {
+    //     setStateUser({
+    //         ...stateUser,
+    //         [e.target.name] : e.target.value
+    //     })
+    // }
+
     const handleOnChangeDetails = (e) => {
-        setstateUserDetails({
+        setStateUserDetails({
             ...stateUserDetails,
             [e.target.name] : e.target.value
         })
@@ -288,9 +344,27 @@ const AdminUser = () => {
         })
     }
 
+    const onChange = (value) => {
+        setStateUserDetails({
+            ...stateUserDetails,
+            role : value
+        })
+    };
+
+    const onSearch = (value) => {
+        console.log('search:', value);
+    };
+    
+    // Filter `option.label` match the user type `input`
+    const filterOption = (input, option) =>
+        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+
     return (
         <div>
             <WrapperHeader>Quản lý tài khoản</WrapperHeader>
+            {/* <Button onClick={showModal} style={{ marginTop: '12px', borderColor: '#404040', height: '60px', width: '60px', borderRadius: '6px' }}>
+                <PlusOutlined style={{ fontSize: '2.4rem', color: '#404040' }} />
+            </Button> */}
             <div style={{ marginTop: '16px' }}>
                 <TableComponent handleDeleteMany={handleDeleteManyUser} onChange={handleChange} columns={columns} isLoading={isLoadingUsers} data={dataTable} onRow={(record, rowIndex) => {
                     return {
@@ -301,10 +375,136 @@ const AdminUser = () => {
                 }}/>
             </div>
 
+            {/* <ModalComponent title="Tạo tài khoản" footer={null} open={isModalOpen} onCancel={handleCancel}>
+                <LoadingComponent isLoading={isLoading}>
+                    <Form
+                        name="modalForm"
+                        labelCol={{
+                        span: 6,
+                        }}
+                        wrapperCol={{
+                        span: 18,
+                        }}
+                        style={{
+                        maxWidth: 600,
+                        }}
+                        onFinish={onFinish}
+                        autoComplete="off"
+                        form={form}
+                    >
+                        <Form.Item
+                        label="Tên người dùng"
+                        name="name"
+                        rules={[
+                            {
+                            required: true,
+                            message: 'Xin hãy nhập tên của người dùng!',
+                            },
+                        ]}
+                        >
+                            <InputComponent 
+                                size='large' 
+                                bordered={true}
+                                value={stateUser.name}
+                                onChange={handleOnChange}
+                                name="name"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                        label="Email"
+                        name="email"
+                        rules={[
+                            {
+                            required: true,
+                            message: 'Xin hãy nhập email của người dùng!',
+                            },
+                        ]}
+                        >
+                            <InputComponent 
+                                size='large' 
+                                bordered={true}
+                                value={stateUser.email}
+                                onChange={handleOnChange}
+                                name="email"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                        label="Password"
+                        name="password"
+                        rules={[
+                            {
+                            required: true,
+                            message: 'Xin hãy nhập password của người dùng!',
+                            },
+                        ]}
+                        >
+                            <InputComponent 
+                                size='large' 
+                                bordered={true}
+                                value={stateUser.password}
+                                onChange={handleOnChange}
+                                name="password"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                        label="Vai trò"
+                        name="role"
+                        rules={[
+                            {
+                            required: true,
+                            message: 'Xin hãy nhập vai trò của người dùng!',
+                            },
+                        ]}
+                        >
+                            <InputComponent 
+                                size='large' 
+                                bordered={true}
+                                value={stateUser.role}
+                                onChange={handleOnChange}
+                                name="role"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                        label="Số điện thoại"
+                        name="phone"
+                        rules={[
+                            {
+                            required: true,
+                            message: 'Xin hãy nhập số điện thoại của người dùng!',
+                            },
+                        ]}
+                        >
+                            <InputComponent 
+                                size='large' 
+                                bordered={true}
+                                value={stateUser.phone}
+                                onChange={handleOnChange}
+                                name="phone"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            wrapperCol={{
+                                offset: 17,
+                                span: 7,
+                            }}
+                            >
+                            <Button type="primary" htmlType="submit">
+                                Tạo tài khoản
+                            </Button>
+                        </Form.Item>
+                    </Form>
+                </LoadingComponent>
+            </ModalComponent> */}
+
             <DrawerComponent forceRender title='Cập nhật thông tin người dùng' isOpen={isOpenDrawer} onClose={() => setIsOpenDrawer(false)} width= '50%'>
                 <LoadingComponent isLoading={isLoadingUpdated || isLoadingUpdate}>
                     <Form
-                        name="basic1"
+                        name="drawer"
                         labelCol={{
                         span: 6,
                         }}
@@ -385,12 +585,34 @@ const AdminUser = () => {
                             },
                         ]}
                         >
-                            <InputComponent 
+                            {/* <InputComponent 
                                 size='large' 
                                 bordered={true}
                                 value={stateUserDetails.role}
                                 onChange={handleOnChangeDetails}
                                 name="role"
+                            /> */}
+                            <Select
+                                showSearch
+                                placeholder="Chọn vai trò"
+                                optionFilterProp="children"
+                                onChange={onChange}
+                                onSearch={onSearch}
+                                filterOption={filterOption}
+                                options={[
+                                {
+                                    value: 'admin',
+                                    label: 'admin',
+                                },
+                                {
+                                    value: 'student',
+                                    label: 'student',
+                                },
+                                {
+                                    value: 'instructor',
+                                    label: 'instructor',
+                                },
+                                ]}
                             />
                         </Form.Item>
 
@@ -408,7 +630,7 @@ const AdminUser = () => {
                 </LoadingComponent>
             </DrawerComponent>
 
-            <ModalComponent forceRender title="Xóa người dùng" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteUser} >
+            <ModalComponent title="Xóa người dùng" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteUser} >
                 <LoadingComponent isLoading={isLoadingDeleted}>
                     <div>Bạn có chắc chắn muốn xóa tài khoản này ?</div>
                 </LoadingComponent>

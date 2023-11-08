@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { WrapperHeader } from './style';
-import { Button, Form, Space, Upload } from 'antd';
+import { Button, Form, Select, Space, Upload } from 'antd';
 import { PlusOutlined, UploadOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 import TableComponent from '../TableComponent/TableComponent';
 import InputComponent from '../InputComponent/InputComponent';
-import { getBase64 } from '../../util';
 import * as LessonService from '../../services/LessonService';
+import * as CourseService from '../../services/CourseService';
 import { useMutationHooks } from '../../hooks/useMutationHook';
 import LoadingComponent from '../LoadingComponent/LoadingComponent';
 import * as message from '../../components/MessageComponent/MessageComponent';
@@ -19,6 +19,7 @@ const AdminLesson = () => {
     const user = useSelector((state) => state?.user)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [rowSelected, setRowSelected] = useState('');
+    const [idCourseSelected, setIdCourseSelected] = useState('');
     const [isOpenDrawer, setIsOpenDrawer] = useState(false);
     const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
@@ -75,7 +76,7 @@ const AdminLesson = () => {
         }
     )
 
-    const getAllCourses = async () => {
+    const getAllLessons = async () => {
         const res = await LessonService.getAllLesson()
         return res
     }
@@ -93,7 +94,7 @@ const AdminLesson = () => {
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
     const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
 
-    const queryLesson = useQuery({queryKey : ['lessons'], queryFn : getAllCourses})
+    const queryLesson = useQuery({queryKey : ['lessons'], queryFn : getAllLessons})
     const { isLoading : isLoadingLessons, data : lessons } = queryLesson
 
     const fetchGetDetailsLesson = async (rowSelected) => {
@@ -201,7 +202,6 @@ const AdminLesson = () => {
     });
 
     const handleChange = (pagination, filters, sorter) => {
-        console.log('Various parameters', pagination, filters, sorter);
         setFilteredInfo(filters);
         setSortedInfo(sorter);
     };
@@ -364,15 +364,76 @@ const AdminLesson = () => {
             }
         })
     }
+    
+    const getAllCourses = async () => {
+        const res = await CourseService.getAllCourse()
+        return res
+    }
+
+    const queryCourse = useQuery({queryKey : ['courses'], queryFn : getAllCourses})
+    const { isLoading : isLoadingCourses, data : courses } = queryCourse
+
+    const fetchCountLesson = async (context) => {
+        const id = context?.queryKey && context?.queryKey[1]
+        if (id) {
+            const res = await LessonService.countAllLesson(id)
+            return res
+        }
+    }
+
+    const { isLoadingLesson, data: countLessons } = useQuery(['count-lessons', idCourseSelected], fetchCountLesson, { enabled: !!idCourseSelected })
+
+    const dataTableFilter = countLessons?.data?.length && countLessons?.data?.map((countLesson) => {
+        return {
+          ...countLesson,
+          key: countLesson._id
+        }
+    })
+    
+    const resultCourses = courses?.data?.map((item, index) => ({
+        value: item._id,
+        label: item.name
+    }));
+
+    const onChange = (value) => {
+        setIdCourseSelected(value)
+    };
+
+    const onChangeAddLesson = (value) => {
+        setstateLesson({
+            ...stateLesson,
+            courseId : value
+        })
+    };
+
+    const onChangeUpdateLesson = (value) => {
+        setstateLessonDetails({
+            ...stateLessonDetails,
+            courseId : value
+        })
+    };
+    
+    const filterOption = (input, option) =>
+        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     return (
         <div>
             <WrapperHeader>Quản lý bài học</WrapperHeader>
+            <Select
+                style={{ marginTop: '12px', minWidth: '300px', maxWidth: '300px' }}
+                showSearch
+                placeholder="Chọn khóa học"
+                optionFilterProp="children"
+                onChange={onChange}
+                filterOption={filterOption}
+                options={resultCourses}
+            />
+            <br></br>
             <Button onClick={showModal} style={{ marginTop: '12px', borderColor: '#404040', height: '60px', width: '60px', borderRadius: '6px' }}>
                 <PlusOutlined style={{ fontSize: '2.4rem', color: '#404040' }} />
             </Button>
             <div style={{ marginTop: '16px' }}>
-                <TableComponent handleDeleteMany={handleDeleteManyLesson} onChange={handleChange} columns={columns} isLoading={isLoadingLessons} data={dataTable} onRow={(record, rowIndex) => {
+                <TableComponent handleDeleteMany={handleDeleteManyLesson} onChange={handleChange} columns={columns} isLoading={isLoadingLessons} data={dataTableFilter? dataTableFilter : dataTable} onRow={(record, rowIndex) => {
                     return {
                         onClick: (event) => {
                             setRowSelected(record._id)
@@ -446,12 +507,21 @@ const AdminLesson = () => {
                             },
                         ]}
                         >
-                            <InputComponent 
+                            {/* <InputComponent 
                                 size='large' 
                                 bordered={true}
                                 value={stateLesson.courseId}
                                 onChange={handleOnChange}
                                 name="courseId"
+                            /> */}
+                            <Select
+                                name="courseId"
+                                showSearch
+                                placeholder="Chọn khóa học"
+                                optionFilterProp="children"
+                                onChange={onChangeAddLesson}
+                                filterOption={filterOption}
+                                options={resultCourses}
                             />
                         </Form.Item>
 
@@ -553,12 +623,21 @@ const AdminLesson = () => {
                             },
                         ]}
                         >
-                            <InputComponent 
+                            {/* <InputComponent 
                                 size='large' 
                                 bordered={true}
                                 value={stateLesson.courseId}
                                 onChange={handleOnChangeDetails}
                                 name="courseId"
+                            /> */}
+                            <Select
+                                name="courseId"
+                                showSearch
+                                placeholder="Chọn khóa học"
+                                optionFilterProp="children"
+                                onChange={onChangeUpdateLesson}
+                                filterOption={filterOption}
+                                options={resultCourses}
                             />
                         </Form.Item>
 

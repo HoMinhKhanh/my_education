@@ -45,6 +45,9 @@ const HeaderComponent = () => {
           {user?.role === 'admin' && (
               <WrapperContentPopup onClick={() => navigate('/system/admin')}>Quản lý hệ thống</WrapperContentPopup>
           )}
+          {user?.role === 'instructor' && (
+              <WrapperContentPopup onClick={() => navigate('/system/instructor')}>Quản lý bài học</WrapperContentPopup>
+          )}
           <hr />
           <WrapperContentPopup>Bài viết của tôi</WrapperContentPopup>
           <hr />

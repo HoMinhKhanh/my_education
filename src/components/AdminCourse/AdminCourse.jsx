@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { WrapperHeader } from './style';
-import { Button, Form, Space, Upload } from 'antd';
+import { Button, Form, Select, Space, Upload } from 'antd';
 import { PlusOutlined, UploadOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 import TableComponent from '../TableComponent/TableComponent';
 import InputComponent from '../InputComponent/InputComponent';
 import { getBase64 } from '../../util';
 import * as CourseService from '../../services/CourseService';
+import * as UserService from '../../services/UserService';
 import { useMutationHooks } from '../../hooks/useMutationHook';
 import LoadingComponent from '../LoadingComponent/LoadingComponent';
 import * as message from '../../components/MessageComponent/MessageComponent';
@@ -31,6 +32,7 @@ const AdminCourse = () => {
         type: '', 
         level: '', 
         price: '',
+        instructorId: '',
     });
 
     const [stateCourseDetails, setStateCourseDetails] = useState({
@@ -40,14 +42,15 @@ const AdminCourse = () => {
         type: '', 
         level: '', 
         price: '',
+        instructorId: '',
     });
 
     const [form] = Form.useForm();
 
     const mutation = useMutationHooks(
         (data) => {
-            const { name, description, image, type, level, price } = data
-            const res = CourseService.createCourse({name, description, image, type, level, price})
+            const { name, description, image, type, level, price, instructorId } = data
+            const res = CourseService.createCourse({name, description, image, type, level, price, instructorId})
             return res
         }
     )
@@ -81,6 +84,11 @@ const AdminCourse = () => {
         return res
     }
 
+    const getAllInstructor = async () => {
+        const res = await UserService.getAllInstructor()
+        return res
+    }
+
     const handleDeleteManyCourse = (ids) => {
         mutationDeleteMany.mutate({ ids: ids, access_token: user?.access_token }, {
             onSettled: () => {
@@ -97,6 +105,14 @@ const AdminCourse = () => {
     const queryCourse = useQuery({queryKey : ['courses'], queryFn : getAllCourses})
     const { isLoading : isLoadingCourses, data : courses } = queryCourse
 
+    const queryInstructor = useQuery({queryKey : ['instructors'], queryFn : getAllInstructor})
+    const { isLoading : isLoadingInstructor, data : instructors } = queryInstructor
+
+    const resultCourses = instructors?.data?.map((item, index) => ({
+        value: item._id,
+        label: item.name
+    }));
+
     const fetchGetDetailsCourse = async (rowSelected) => {
         const res = await CourseService.getDetailsCourse(rowSelected)
         if (res?.data){
@@ -107,6 +123,7 @@ const AdminCourse = () => {
                 type: res?.data?.type, 
                 level: res?.data?.level, 
                 price: res?.data?.price,
+                instructorId: res?.data?.instructorId,
             })
         }
         setIsLoadingUpdate(false)
@@ -203,7 +220,6 @@ const AdminCourse = () => {
     });
 
     const handleChange = (pagination, filters, sorter) => {
-        console.log('Various parameters', pagination, filters, sorter);
         setFilteredInfo(filters);
         setSortedInfo(sorter);
     };
@@ -244,6 +260,10 @@ const AdminCourse = () => {
             return record.price >= 300000
           },
         },
+        {
+            title: 'instructorId',
+            dataIndex: 'instructorId',
+          },
         {
           title: 'Action',
           dataIndex: 'action',
@@ -306,6 +326,7 @@ const AdminCourse = () => {
             type: '', 
             level: '', 
             price: '',
+            instructorId: '',
         })
         form.resetFields()
     };
@@ -319,6 +340,7 @@ const AdminCourse = () => {
             type: '', 
             level: '', 
             price: '',
+            instructorId: '',
         })
         form.resetFields()
     }
@@ -386,6 +408,48 @@ const AdminCourse = () => {
             }
         })
     }
+
+    const onChangeType = (value) => {
+        setStateCourse({
+            ...stateCourse,
+            type: value
+        })
+    };
+
+    const onChangeLevel = (value) => {
+        setStateCourse({
+            ...stateCourse,
+            level: value
+        })
+    };
+
+    const onChangeInstructor = (value) => {
+        setStateCourse({
+            ...stateCourse,
+            instructorId: value
+        })
+    };
+
+    const onChangeDetailsType = (value) => {
+        setStateCourseDetails({
+            ...stateCourseDetails,
+            type: value
+        })
+    };
+
+    const onChangeDetailsLevel = (value) => {
+        setStateCourseDetails({
+            ...stateCourseDetails,
+            level: value
+        })
+    };
+
+    const onChangeDetailsInstructor = (value) => {
+        setStateCourseDetails({
+            ...stateCourseDetails,
+            instructorId: value
+        })
+    };
 
     return (
         <div>
@@ -486,12 +550,45 @@ const AdminCourse = () => {
                             },
                         ]}
                         >
-                            <InputComponent 
+                            {/* <InputComponent 
                                 size='large' 
                                 bordered={true}
                                 value={stateCourse.type}
                                 onChange={handleOnChange}
                                 name="type"
+                            /> */}
+                            <Select
+                                name="type"
+                                showSearch
+                                placeholder="Chọn môn học"
+                                optionFilterProp="children"
+                                onChange={onChangeType}
+                                options={[
+                                {
+                                    value: 'Toán',
+                                    label: 'Toán',
+                                },
+                                {
+                                    value: 'Vật lý',
+                                    label: 'Vật lý',
+                                },
+                                {
+                                    value: 'Hóa học',
+                                    label: 'Hóa học',
+                                },
+                                {
+                                    value: 'Sinh học',
+                                    label: 'Sinh học',
+                                },
+                                {
+                                    value: 'Tiếng anh',
+                                    label: 'Tiếng anh',
+                                },
+                                {
+                                    value: 'Ngữ văn',
+                                    label: 'Ngữ văn',
+                                },
+                                ]}
                             />
                         </Form.Item>
 
@@ -505,13 +602,54 @@ const AdminCourse = () => {
                             },
                         ]}
                         >
-                            <InputComponent 
+                            {/* <InputComponent 
                                 size='large' 
                                 bordered={true}
                                 value={stateCourse.level}
                                 onChange={handleOnChange}
                                 name="level"
+                            /> */}
+                            <Select
+                                name="level"
+                                showSearch
+                                placeholder="Chọn độ khó"
+                                optionFilterProp="children"
+                                onChange={onChangeLevel}
+                                options={[
+                                {
+                                    value: 'Dễ',
+                                    label: 'Dễ',
+                                },
+                                {
+                                    value: 'Trung bình',
+                                    label: 'Trung bình',
+                                },
+                                {
+                                    value: 'Nâng cao',
+                                    label: 'Nâng cao',
+                                },
+                                ]}
                             />
+                        </Form.Item>
+
+                        <Form.Item
+                        label="Giảng viên"
+                        name="instructorId"
+                        rules={[
+                            {
+                            required: true,
+                            message: 'Xin hãy chọn giảng viên của khóa học!',
+                            },
+                        ]}
+                        >
+                            <Select
+                                name="instructorId"
+                                showSearch
+                                placeholder="Giảng viên"
+                                optionFilterProp="children"
+                                onChange={onChangeInstructor}
+                                options={resultCourses}
+                            />  
                         </Form.Item>
 
                         <Form.Item
@@ -630,12 +768,45 @@ const AdminCourse = () => {
                             },
                         ]}
                         >
-                            <InputComponent 
+                            {/* <InputComponent 
                                 size='large' 
                                 bordered={true}
                                 value={stateCourseDetails.type}
                                 onChange={handleOnChangeDetails}
                                 name="type"
+                            /> */}
+                            <Select
+                                name="type"
+                                showSearch
+                                placeholder="Chọn môn học"
+                                optionFilterProp="children"
+                                onChange={onChangeDetailsType}
+                                options={[
+                                {
+                                    value: 'Toán',
+                                    label: 'Toán',
+                                },
+                                {
+                                    value: 'Vật lý',
+                                    label: 'Vật lý',
+                                },
+                                {
+                                    value: 'Hóa học',
+                                    label: 'Hóa học',
+                                },
+                                {
+                                    value: 'Sinh học',
+                                    label: 'Sinh học',
+                                },
+                                {
+                                    value: 'Tiếng anh',
+                                    label: 'Tiếng anh',
+                                },
+                                {
+                                    value: 'Ngữ văn',
+                                    label: 'Ngữ văn',
+                                },
+                                ]}
                             />
                         </Form.Item>
 
@@ -649,13 +820,54 @@ const AdminCourse = () => {
                             },
                         ]}
                         >
-                            <InputComponent 
+                            {/* <InputComponent 
                                 size='large' 
                                 bordered={true}
                                 value={stateCourseDetails.level}
                                 onChange={handleOnChangeDetails}
                                 name="level"
+                            /> */}
+                            <Select
+                                name="level"
+                                showSearch
+                                placeholder="Chọn độ khó"
+                                optionFilterProp="children"
+                                onChange={onChangeDetailsLevel}
+                                options={[
+                                {
+                                    value: 'Dễ',
+                                    label: 'Dễ',
+                                },
+                                {
+                                    value: 'Trung bình',
+                                    label: 'Trung bình',
+                                },
+                                {
+                                    value: 'Nâng cao',
+                                    label: 'Nâng cao',
+                                },
+                                ]}
                             />
+                        </Form.Item>
+
+                        <Form.Item
+                        label="Giảng viên"
+                        name="instructorId"
+                        rules={[
+                            {
+                            required: true,
+                            message: 'Xin hãy chọn giảng viên của khóa học!',
+                            },
+                        ]}
+                        >
+                            <Select
+                                name="instructorId"
+                                showSearch
+                                placeholder="Giảng viên"
+                                optionFilterProp="children"
+                                onChange={onChangeDetailsInstructor}
+                                options={resultCourses}
+                            />  
                         </Form.Item>
 
                         <Form.Item

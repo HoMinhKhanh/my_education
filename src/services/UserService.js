@@ -12,6 +12,11 @@ export const signupUser = async (data) => {
     return res.data
 }
 
+export const createUser = async (data) => {
+    const res = await axios.post(`${process.env.REACT_APP_API_URL}/user/create-user`, data)
+    return res.data
+}
+
 export const getDetailsUser = async (id, access_token) => {
     const res = await axiosJWT.get(`${process.env.REACT_APP_API_URL}/user/get-details/${id}`, {
         headers: {
@@ -23,6 +28,11 @@ export const getDetailsUser = async (id, access_token) => {
 
 export const getProfileUser = async (id) => {
     const res = await axios.get(`${process.env.REACT_APP_API_URL}/user/get-profile/${id}`)
+    return res.data
+}
+
+export const getAllInstructor = async () => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/user/get-all-instructor`)
     return res.data
 }
 
