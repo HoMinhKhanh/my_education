@@ -78,7 +78,7 @@ const ProfilePage = () => {
     const handleUpdate = () => {
         mutation.mutate({ id: user?.id, email, password, name, avatar, phone, access_token: user?.access_token })
     }
-
+    
     return (
         <WrapperContainer>
             <WrapperHeader>Thông tin cá nhân</WrapperHeader>

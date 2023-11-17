@@ -1,26 +1,54 @@
 import React, { useState } from 'react';
-import { SwitcherOutlined, UserOutlined, ReadOutlined, FileOutlined } from '@ant-design/icons';
+import { CreditCardOutlined } from '@ant-design/icons';
 import { Menu } from 'antd';
-import { getItem } from '../../util';
 import HeaderComponent from '../../components/HeaderComponent/HeaderComponent';
-import AdminLesson from '../../components/AdminLesson/AdminLesson';
+import * as CourseService from '../../services/CourseService';
+import { useQuery } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
+import InstructorManager from '../../components/InstructorManager/InstructorManager';
 
 const InstructorPage = () => {
-    const items = [
-        getItem('Bài học', 'lesson', <FileOutlined />),
-    ];
+    const user = useSelector((state) => state?.user)
+
+    const fetchCountCourseInstructor = async (context) => {
+        const id = context?.queryKey && context?.queryKey[1]
+        if (id) {
+            const res = await CourseService.getAllCourseInstructor(id)
+            return res
+        }
+    }
+    
+    const { isLoadingLesson, data: courses } = useQuery(['count-courses', user?.id], fetchCountCourseInstructor, { enabled: !!user?.id })
+
+    function getItem(label, key, icon, children, type) {
+        return {
+          key,
+          icon,
+          children,
+          label,
+          type,
+        };
+    }
+
+    const items = courses?.data?.map(
+        course => getItem(
+            course?.name, 
+            course?._id, 
+            <CreditCardOutlined />, 
+            null,
+            'item', 
+            null,
+        )
+    )
     
     const [keySelected, setKeySelected] = useState('')
 
     const renderPage = (key) => {
-        switch (key) {
-            case 'lesson':
-                return (
-                    <AdminLesson />
-                )
-            default:
-                return <></>
-        }
+        return (
+            <div>
+                <InstructorManager id={key} />
+            </div>
+        )
     }
 
     const handleOnClick = ({ key }) => {

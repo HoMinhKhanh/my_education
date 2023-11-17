@@ -12,6 +12,11 @@ export const getAllCourse = async (search, limit) => {
     return res.data
 }
 
+export const getAllCourseInstructor = async (id) => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/course/get-all-course-instructor/${id}`)
+    return res.data
+}
+
 export const createCourse = async (data) => {
     const res = await axios.post(`${process.env.REACT_APP_API_URL}/course/create-course`, data)
     return res.data

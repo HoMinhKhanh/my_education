@@ -44,6 +44,13 @@ export const WrapperCourseDetailLi = styled.li`
     position: relative;
 `
 
+export const WrapperCourseDetailIcon = styled.div`
+    color: rgb(73, 73, 73);
+    font-size: 2.6rem;
+    line-height: 1.6;
+    margin-top: 10px;
+`
+
 export const WrapperCourseDetailSpan = styled.span`
     margin-left: 24px;
 `

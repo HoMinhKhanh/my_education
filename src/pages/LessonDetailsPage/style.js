@@ -9,6 +9,7 @@ export const WrapperLessonsDetailDiv = styled(Row)`
 export const WrapperLessonsDetailLeft = styled.div`
     left: 0;
     top: 0;
+    height: 100vh;
     border-left: 1px solid #ccc;
     border-right: 1px solid #ccc;
 `

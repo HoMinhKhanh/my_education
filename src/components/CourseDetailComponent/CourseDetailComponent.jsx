@@ -10,6 +10,7 @@ const CourseDetailComponent = ({courseDetails, lessons}) => {
     const handleDetailsLesson = (id) => {
         navigate(`/lesson-details/${id}`)
     }
+
     return (
         <div>
             <WrapperCourseDetail>
@@ -34,7 +35,7 @@ const CourseDetailComponent = ({courseDetails, lessons}) => {
                 </WrapperCourseDetailH5>
                 <WrapperButtonHover 
                     onClick={() => handleDetailsLesson(courseDetails?._id)}
-                    textButton='Đăng ký học' 
+                    textButton='Vào học' 
                     type='default' 
                     style={{
                         fontSize: '1.6rem',
