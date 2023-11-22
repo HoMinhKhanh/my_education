@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { WrapperHeader } from './style';
-import { Button, Form, Select, Space, Upload } from 'antd';
-import { PlusOutlined, UploadOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Form, Space } from 'antd';
+import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 import TableComponent from '../TableComponent/TableComponent';
 import InputComponent from '../InputComponent/InputComponent';
 import * as LessonService from '../../services/LessonService';
-import * as CourseService from '../../services/CourseService';
+import * as AssignmentService from '../../services/AssignmentService';
 import { useMutationHooks } from '../../hooks/useMutationHook';
 import LoadingComponent from '../LoadingComponent/LoadingComponent';
 import * as message from '../../components/MessageComponent/MessageComponent';
@@ -14,40 +14,36 @@ import DrawerComponent from '../DrawerComponent/DrawerComponent';
 import { useSelector } from 'react-redux';
 import ModalComponent from '../ModalComponent/ModalComponent';
 
-const AdminLesson = () => {
-
+const InstructorAssignment = ({course}) => {
     const user = useSelector((state) => state?.user)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [rowSelected, setRowSelected] = useState('');
-    const [idCourseSelected, setIdCourseSelected] = useState('');
     const [isOpenDrawer, setIsOpenDrawer] = useState(false);
     const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const searchInput = useRef(null);
     const [filteredInfo, setFilteredInfo] = useState({});
     const [sortedInfo, setSortedInfo] = useState({});
-    const [stateLesson, setstateLesson] = useState({
-        name: '', 
+    const [stateAssignment, setstateAssignment] = useState({
+        title: '', 
         description: '', 
-        videoId: '', 
-        courseId: '', 
-        rating: '',
+        courseId: course?._id, 
+        instructorId: user?.id,
     });
 
-    const [stateLessonDetails, setstateLessonDetails] = useState({
-        name: '', 
+    const [stateAssignmentDetails, setstateAssignmentDetails] = useState({
+        title: '', 
         description: '', 
-        videoId: '', 
-        courseId: '', 
-        rating: '',
+        courseId: course?._id, 
+        instructorId: user?.id,
     });
 
     const [form] = Form.useForm();
 
     const mutation = useMutationHooks(
         (data) => {
-            const { name, description, videoId, courseId, rating } = data
-            const res = LessonService.createLesson({name, description, videoId, courseId, rating})
+            const { title, description, courseId, instructorId } = data
+            const res = AssignmentService.createAssignment({title, description, courseId, instructorId})
             return res
         }
     )
@@ -55,7 +51,7 @@ const AdminLesson = () => {
     const mutationUpdate = useMutationHooks(
         (data) => {
             const { id, access_token, ...rests } = data
-            const res = LessonService.updateLesson( id, access_token, { ...rests })
+            const res = AssignmentService.updateAssignment( id, access_token, { ...rests })
             return res
         }
     )
@@ -63,7 +59,7 @@ const AdminLesson = () => {
     const mutationDelete = useMutationHooks(
         (data) => {
             const { id, access_token } = data
-            const res = LessonService.deleteLesson( id, access_token)
+            const res = AssignmentService.deleteAssignment( id, access_token)
             return res
         }
     )
@@ -71,20 +67,15 @@ const AdminLesson = () => {
     const mutationDeleteMany = useMutationHooks(
         (data) => {
             const { access_token, ...ids } = data
-            const res = LessonService.deleteManyLesson( ids, access_token)
+            const res = AssignmentService.deleteManyAssignment( ids, access_token)
             return res
         }
     )
 
-    const getAllLessons = async () => {
-        const res = await LessonService.getAllLesson()
-        return res
-    }
-
     const handleDeleteManyLesson = (ids) => {
         mutationDeleteMany.mutate({ ids: ids, access_token: user?.access_token }, {
             onSettled: () => {
-                queryLesson.refetch()
+                queryAssignment.refetch()
             }
         })
     }
@@ -94,31 +85,36 @@ const AdminLesson = () => {
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
     const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
 
-    const queryLesson = useQuery({queryKey : ['lessons'], queryFn : getAllLessons})
-    const { isLoading : isLoadingLessons, data : lessons } = queryLesson
+    const fetchCountAssignment = async (context) => {
+        const id = context?.queryKey && context?.queryKey[1]
+        if (id) {
+            const res = await AssignmentService.countAllAssignment(id)
+            return res
+        }
+    }
 
-    const fetchGetDetailsLesson = async (rowSelected) => {
-        const res = await LessonService.getDetailsLesson(rowSelected)
+    const queryAssignment = useQuery(['count-assignments', course?._id], fetchCountAssignment, { enabled: !!course?._id })
+    const { isLoadingLesson, data: countAssignments } =  queryAssignment
+
+    const fetchGetDetailsAssignment = async (rowSelected) => {
+        const res = await AssignmentService.getDetailsAssignment(rowSelected)
         if (res?.data){
-            setstateLessonDetails({
-                name: res?.data?.name,
-                description: res?.data?.description, 
-                videoId: res?.data?.videoId, 
-                courseId: res?.data?.courseId, 
-                rating: res?.data?.rating,
+            setstateAssignmentDetails({
+                title: res?.data?.title,
+                description: res?.data?.description,
             })
         }
         setIsLoadingUpdate(false)
     }
 
     useEffect(() =>{
-        form.setFieldsValue(stateLessonDetails)
-    },[form, stateLessonDetails])
+        form.setFieldsValue(stateAssignmentDetails)
+    },[form, stateAssignmentDetails])
 
     useEffect(() =>{
         if (rowSelected && isOpenDrawer) {
             setIsLoadingUpdate(true)
-            fetchGetDetailsLesson(rowSelected)
+            fetchGetDetailsAssignment(rowSelected)
         }
     },[rowSelected, isOpenDrawer])
 
@@ -208,43 +204,14 @@ const AdminLesson = () => {
 
     const columns = [
         {
-          title: 'Name',
-          dataIndex: 'name',
+          title: 'Title',
+          dataIndex: 'title',
           sorter: (a, b) => a.name.length - b.name.length,
-          ...getColumnSearchProps('name'),
+          ...getColumnSearchProps('title'),
         },
         {
           title: 'Description',
           dataIndex: 'description',
-        },
-        {
-          title: 'VideoId',
-          dataIndex: 'videoId',
-        },
-        {
-            title: 'CourseId',
-            dataIndex: 'courseId',
-        },
-        {
-          title: 'Rating',
-          dataIndex: 'rating',
-          sorter: (a, b) => a.rating - b.rating,
-          filters: [
-            {
-              text: '<=3',
-              value: '<=3',
-            },
-            {
-              text: '>=3',
-              value: '>=3',
-            },
-          ],
-          onFilter: (value, record) => {
-            if (value === '<=3') {
-                return record.price <= 3
-            }
-            return record.price >= 3
-          },
         },
         {
           title: 'Action',
@@ -252,12 +219,12 @@ const AdminLesson = () => {
           render: renderAction,
         },
     ];
-    
-    const dataTable = lessons?.data?.length && lessons?.data?.map((lesson) => {
-      return {
-        ...lesson,
-        key: lesson._id
-      }
+
+    const dataTableFilter = countAssignments?.data?.length && countAssignments?.data?.map((countAssignment) => {
+        return {
+          ...countAssignment,
+          key: countAssignment._id
+        }
     })
 
     useEffect(() => {
@@ -301,24 +268,18 @@ const AdminLesson = () => {
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        setstateLesson({
-            name: '', 
-            description: '', 
-            videoId: '', 
-            courseId: '', 
-            rating: '',
+        setstateAssignment({
+            title: '', 
+            description: '',
         })
         form.resetFields()
     };
 
     const handleCancelDrawer = () => {
         setIsOpenDrawer(false);
-        setstateLessonDetails({
-            name: '', 
-            description: '', 
-            videoId: '', 
-            courseId: '', 
-            rating: '',
+        setstateAssignmentDetails({
+            title: '', 
+            description: '',
         })
         form.resetFields()
     }
@@ -330,110 +291,54 @@ const AdminLesson = () => {
     const handleDeleteLesson = () => {
         mutationDelete.mutate({ id: rowSelected, access_token: user?.access_token }, {
             onSettled: () => {
-                queryLesson.refetch()
+                queryAssignment.refetch()
             }
         })
     }
 
     const onFinish = () => {
-        mutation.mutate(stateLesson, {
+        mutation.mutate(stateAssignment, {
             onSettled: () => {
-                queryLesson.refetch()
+                queryAssignment.refetch()
             }
         })
     }
 
     const handleOnChange = (e) => {
-        setstateLesson({
-            ...stateLesson,
+        setstateAssignment({
+            ...stateAssignment,
+            courseId: course?._id, 
+            instructorId: user?.id,
             [e.target.name] : e.target.value
         })
     }
 
     const handleOnChangeDetails = (e) => {
-        setstateLessonDetails({
-            ...stateLessonDetails,
+        setstateAssignmentDetails({
+            ...stateAssignmentDetails,
+            courseId: course?._id, 
+            instructorId: user?.id,
             [e.target.name] : e.target.value
         })
     }
 
     const onUpdateLesson = () => {
-        mutationUpdate.mutate({ id: rowSelected, access_token: user?.access_token, ...stateLessonDetails }, {
+        mutationUpdate.mutate({ id: rowSelected, access_token: user?.access_token, ...stateAssignmentDetails }, {
             onSettled: () => {
-                queryLesson.refetch()
+                queryAssignment.refetch()
             }
         })
     }
-    
-    const getAllCourses = async () => {
-        const res = await CourseService.getAllCourse()
-        return res
-    }
-
-    const queryCourse = useQuery({queryKey : ['courses'], queryFn : getAllCourses})
-    const { isLoading : isLoadingCourses, data : courses } = queryCourse
-
-    const fetchCountLesson = async (context) => {
-        const id = context?.queryKey && context?.queryKey[1]
-        if (id) {
-            const res = await LessonService.countAllLesson(id)
-            return res
-        }
-    }
-
-    const { isLoadingLesson, data: countLessons } = useQuery(['count-lessons', idCourseSelected], fetchCountLesson, { enabled: !!idCourseSelected })
-
-    const dataTableFilter = countLessons?.data?.length && countLessons?.data?.map((countLesson) => {
-        return {
-          ...countLesson,
-          key: countLesson._id
-        }
-    })
-    
-    const resultCourses = courses?.data?.map((item, index) => ({
-        value: item._id,
-        label: item.name
-    }));
-
-    const onChange = (value) => {
-        setIdCourseSelected(value)
-    };
-
-    const onChangeAddLesson = (value) => {
-        setstateLesson({
-            ...stateLesson,
-            courseId : value
-        })
-    };
-
-    const onChangeUpdateLesson = (value) => {
-        setstateLessonDetails({
-            ...stateLessonDetails,
-            courseId : value
-        })
-    };
-    
-    const filterOption = (input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     return (
         <div>
-            <WrapperHeader>Quản lý bài học</WrapperHeader>
-            <Select
-                style={{ marginTop: '12px', minWidth: '300px', maxWidth: '300px' }}
-                showSearch
-                placeholder="Chọn khóa học"
-                optionFilterProp="children"
-                onChange={onChange}
-                filterOption={filterOption}
-                options={resultCourses}
-            />
+            <WrapperHeader>Quản lý bài tập</WrapperHeader>
             <br></br>
             <Button onClick={showModal} style={{ marginTop: '12px', borderColor: '#404040', height: '60px', width: '60px', borderRadius: '6px' }}>
                 <PlusOutlined style={{ fontSize: '2.4rem', color: '#404040' }} />
             </Button>
             <div style={{ marginTop: '16px' }}>
-                <TableComponent handleDeleteMany={handleDeleteManyLesson} onChange={handleChange} columns={columns} isLoading={isLoadingLessons} data={dataTableFilter? dataTableFilter : dataTable} onRow={(record, rowIndex) => {
+                <TableComponent handleDeleteMany={handleDeleteManyLesson} onChange={handleChange} columns={columns} isLoading={isLoadingLesson} data={dataTableFilter} onRow={(record, rowIndex) => {
                     return {
                         onClick: (event) => {
                             setRowSelected(record._id)
@@ -441,8 +346,7 @@ const AdminLesson = () => {
                     };
                 }}/>
             </div>
-
-            <ModalComponent forceRender title="Tạo bài học" footer={null} open={isModalOpen} onCancel={handleCancel}>
+            <ModalComponent forceRender title="Tạo bài tập" footer={null} open={isModalOpen} onCancel={handleCancel}>
                 <LoadingComponent isLoading={isLoading}>
                     <Form
                         name="basic"
@@ -460,21 +364,21 @@ const AdminLesson = () => {
                         form={form}
                     >
                         <Form.Item
-                        label="Tên bài học"
-                        name="name"
+                        label="Tiêu đề"
+                        name="title"
                         rules={[
                             {
                             required: true,
-                            message: 'Xin hãy nhập tên của bài học!',
+                            message: 'Xin hãy nhập tiêu đề của bài tập!',
                             },
                         ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateLesson.name}
+                                value={stateAssignment.title}
                                 onChange={handleOnChange}
-                                name="name"
+                                name="title"
                             />
                         </Form.Item>
 
@@ -484,63 +388,16 @@ const AdminLesson = () => {
                         rules={[
                             {
                             required: true,
-                            message: 'Xin hãy nhập mô tả của bài học!',
+                            message: 'Xin hãy nhập mô tả của bài tập!',
                             },
                         ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateLesson.description}
+                                value={stateAssignment.description}
                                 onChange={handleOnChange}
                                 name="description"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                        label="Thuộc khóa học"
-                        name="courseId"
-                        rules={[
-                            {
-                            required: true,
-                            message: 'Xin hãy chọn khóa học!',
-                            },
-                        ]}
-                        >
-                            {/* <InputComponent 
-                                size='large' 
-                                bordered={true}
-                                value={stateLesson.courseId}
-                                onChange={handleOnChange}
-                                name="courseId"
-                            /> */}
-                            <Select
-                                name="courseId"
-                                showSearch
-                                placeholder="Chọn khóa học"
-                                optionFilterProp="children"
-                                onChange={onChangeAddLesson}
-                                filterOption={filterOption}
-                                options={resultCourses}
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                        label="Video"
-                        name="videoId"
-                        rules={[
-                            {
-                            required: true,
-                            message: 'Xin hãy nhập video ID bài học!',
-                            },
-                        ]}
-                        >
-                            <InputComponent 
-                                size='large' 
-                                bordered={true}
-                                value={stateLesson.videoId}
-                                onChange={handleOnChange}
-                                name="videoId"
                             />
                         </Form.Item>
 
@@ -576,21 +433,21 @@ const AdminLesson = () => {
                         form={form}
                     >
                         <Form.Item
-                        label="Tên bài học"
-                        name="name"
+                        label="Tiêu đề"
+                        name="title"
                         rules={[
                             {
                             required: true,
-                            message: 'Xin hãy nhập tên của bài học!',
+                            message: 'Xin hãy nhập tiêu đề của bài tập!',
                             },
                         ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateLesson.name}
+                                value={stateAssignment.title}
                                 onChange={handleOnChangeDetails}
-                                name="name"
+                                name="title"
                             />
                         </Form.Item>
 
@@ -600,63 +457,16 @@ const AdminLesson = () => {
                         rules={[
                             {
                             required: true,
-                            message: 'Xin hãy nhập mô tả của bài học!',
+                            message: 'Xin hãy nhập mô tả của bài tập!',
                             },
                         ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateLesson.description}
+                                value={stateAssignment.description}
                                 onChange={handleOnChangeDetails}
                                 name="description"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                        label="Thuộc khóa học"
-                        name="courseId"
-                        rules={[
-                            {
-                            required: true,
-                            message: 'Xin hãy chọn khóa học!',
-                            },
-                        ]}
-                        >
-                            {/* <InputComponent 
-                                size='large' 
-                                bordered={true}
-                                value={stateLesson.courseId}
-                                onChange={handleOnChangeDetails}
-                                name="courseId"
-                            /> */}
-                            <Select
-                                name="courseId"
-                                showSearch
-                                placeholder="Chọn khóa học"
-                                optionFilterProp="children"
-                                onChange={onChangeUpdateLesson}
-                                filterOption={filterOption}
-                                options={resultCourses}
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                        label="Video"
-                        name="videoId"
-                        rules={[
-                            {
-                            required: true,
-                            message: 'Xin hãy nhập video ID bài học!',
-                            },
-                        ]}
-                        >
-                            <InputComponent 
-                                size='large' 
-                                bordered={true}
-                                value={stateLesson.videoId}
-                                onChange={handleOnChangeDetails}
-                                name="videoId"
                             />
                         </Form.Item>
 
@@ -674,13 +484,13 @@ const AdminLesson = () => {
                 </LoadingComponent>
             </DrawerComponent>
 
-            <ModalComponent title="Xóa bài học" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteLesson} >
+            <ModalComponent title="Xóa bài tập" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteLesson} >
                 <LoadingComponent isLoading={isLoadingDeleted}>
-                    <div>Bạn có chắc chắn muốn xóa bài học này ?</div>
+                    <div>Bạn có chắc chắn muốn xóa bài tập này ?</div>
                 </LoadingComponent>
             </ModalComponent>
         </div>
     )
 }
 
-export default AdminLesson
+export default InstructorAssignment

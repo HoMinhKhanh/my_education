@@ -46,7 +46,7 @@ const HeaderComponent = () => {
               <WrapperContentPopup onClick={() => navigate('/system/admin')}>Quản lý hệ thống</WrapperContentPopup>
           )}
           {user?.role === 'instructor' && (
-              <WrapperContentPopup onClick={() => navigate('/system/instructor')}>Quản lý bài học</WrapperContentPopup>
+              <WrapperContentPopup onClick={() => navigate('/system/instructor')}>Quản lý khóa học</WrapperContentPopup>
           )}
           <hr />
           <WrapperContentPopup>Bài viết của tôi</WrapperContentPopup>
@@ -68,7 +68,7 @@ const HeaderComponent = () => {
                     <a href="/">
                         <WrapperLogoHeader src={Logo} alt="My Education" />
                     </a>
-                    <WrapperTextHeader>My Education</WrapperTextHeader>
+                    <WrapperTextHeader>MY EDUCATION</WrapperTextHeader>
                 </WrapperColHeader>
                 <Col span={8}>
                     <ButtonInputSearch
