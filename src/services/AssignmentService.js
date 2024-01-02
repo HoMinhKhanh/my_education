@@ -31,7 +31,7 @@ export const deleteAssignment = async (id, access_token) => {
 }
 
 export const deleteManyAssignment = async (data, access_token) => {
-    const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/lesson/delete-many-assignment`, data, {
+    const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/assignment/delete-many-assignment`, data, {
         headers: {
             token: `Bearer ${access_token}`,
         }

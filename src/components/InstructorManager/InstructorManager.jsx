@@ -5,6 +5,7 @@ import { Menu } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import InstructorLesson from '../InstructorLesson/InstructorLesson';
 import InstructorAssignment from '../InstructorAssignment/InstructorAssignment';
+import InstructorScore from '../InstructorScore/InstructorScore';
 
 const InstructorManager = ({ id }) => {
 
@@ -55,9 +56,7 @@ const InstructorManager = ({ id }) => {
                 )
             case 'score':
                 return (
-                    <div>
-                        score
-                    </div>
+                    <InstructorScore course={course?.data} />
                 )
             case 'statistical':
                 return (

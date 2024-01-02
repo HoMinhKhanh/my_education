@@ -132,7 +132,7 @@ const ProfilePage = () => {
                     <WrapperInput>
                         <WrapperLabel htmlFor='avatar' >Avatar:</WrapperLabel>
                         <div style={{ width: '70%', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <Upload onChange={handleOnChangeAvatar} maxCount={1}>
+                            <Upload onChange={handleOnChangeAvatar} maxCount={1} accept=".png">
                                 <Button icon={<UploadOutlined />}>Upload</Button>
                             </Upload>
                             {avatar && (
