@@ -33,4 +33,21 @@ export const deleteLesson = async (id, access_token) => {
         }
     })
     return res.data
+<<<<<<< HEAD
+=======
+}
+
+export const deleteManyLesson = async (data, access_token) => {
+    const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/lesson/delete-many-lesson`, data, {
+        headers: {
+            token: `Bearer ${access_token}`,
+        }
+    })
+    return res.data
+}
+
+export const countAllLesson = async (id) => {
+    const res = await axios.post(`${process.env.REACT_APP_API_URL}/lesson/count-lesson/${id}`)
+    return res.data
+>>>>>>> 09a384dec923a768188f78a69ed32d1851d6c782
 }

@@ -10,9 +10,13 @@ import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
 import LessonDetailsPage from "../pages/LessonDetailsPage/LessonDetailsPage";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
 import AdminPage from "../pages/AdminPage/AdminPage";
+<<<<<<< HEAD
 import FogotPasword from "../pages/FogotPassword/Forgotpassword";
 import Forgotpassword3 from "../pages/ForgotPassword3/FogotPassword3";
 import Forgotpassword4 from "../pages/ForgotPassword4/FogotPassword4";
+=======
+import InstructorPage from "../pages/InstructorPage/InstructorPage";
+>>>>>>> 09a384dec923a768188f78a69ed32d1851d6c782
 
 export const routes = [
     {
@@ -72,6 +76,7 @@ export const routes = [
         isPrivated: true,
     },
     {
+<<<<<<< HEAD
         path: '/fogotPassword',
         page: FogotPasword,
         isShowHeader: false,
@@ -86,6 +91,10 @@ export const routes = [
     {
         path: '/fogotPassword3',
         page: Forgotpassword4,
+=======
+        path: '/system/instructor',
+        page: InstructorPage,
+>>>>>>> 09a384dec923a768188f78a69ed32d1851d6c782
         isShowHeader: false,
         isPrivated: true,
     },

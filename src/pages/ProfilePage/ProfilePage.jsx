@@ -78,7 +78,7 @@ const ProfilePage = () => {
     const handleUpdate = () => {
         mutation.mutate({ id: user?.id, email, password, name, avatar, phone, access_token: user?.access_token })
     }
-
+    
     return (
         <WrapperContainer>
             <WrapperHeader>Thông tin cá nhân</WrapperHeader>
@@ -132,7 +132,7 @@ const ProfilePage = () => {
                     <WrapperInput>
                         <WrapperLabel htmlFor='avatar' >Avatar:</WrapperLabel>
                         <div style={{ width: '70%', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <Upload onChange={handleOnChangeAvatar} maxCount={1}>
+                            <Upload onChange={handleOnChangeAvatar} maxCount={1} accept=".png">
                                 <Button icon={<UploadOutlined />}>Upload</Button>
                             </Upload>
                             {avatar && (

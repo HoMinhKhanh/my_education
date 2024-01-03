@@ -69,7 +69,7 @@ const SignUpPage = () => {
                             <a href="/" style={{ outline: 'none', textDecoration: 'none' }}>
                                 <WrapperLogoImage src={ImageLogo} alt="Logo" />
                             </a>
-                            <WrapperContainerHeadingH4>My Education xin chào,</WrapperContainerHeadingH4>
+                            <WrapperContainerHeadingH4>MY EDUCATION xin chào,</WrapperContainerHeadingH4>
                             <WrapperContainerHeadingP>Đăng ký tài khoản</WrapperContainerHeadingP>
                         </div>
                         <InputForm 

@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { WrapperHeader } from './style';
-import { Button, Form, Space } from 'antd';
+import { Select, Button, Form, Space } from 'antd';
 import { DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
 import TableComponent from '../TableComponent/TableComponent';
-import InputComponent from '../InputComponent/InputComponent'
-import * as NewsService from '../../services/NewsService';
+import InputComponent from '../InputComponent/InputComponent';
+import * as AssignmentService from '../../services/AssignmentService';
+import * as AnswerService from '../../services/AnswerService';
 import { useMutationHooks } from '../../hooks/useMutationHook';
 import LoadingComponent from '../LoadingComponent/LoadingComponent';
 import * as message from '../../components/MessageComponent/MessageComponent';
@@ -13,22 +14,22 @@ import DrawerComponent from '../DrawerComponent/DrawerComponent';
 import { useSelector } from 'react-redux';
 import ModalComponent from '../ModalComponent/ModalComponent';
 
-const AdminNews = () => {
-
+const InstructorScore = ({course}) => {
     const user = useSelector((state) => state?.user)
     const [rowSelected, setRowSelected] = useState('');
     const [isOpenDrawer, setIsOpenDrawer] = useState(false);
     const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
+    const [idAssignmentSelected, setIdAssignmentSelected] = useState('');
     const searchInput = useRef(null);
     const [filteredInfo, setFilteredInfo] = useState({});
     const [sortedInfo, setSortedInfo] = useState({});
 
-    const [stateNewsDetails, setstateNewsDetails] = useState({
+    const [stateAnswerDetails, setstateAnswerDetails] = useState({
         title: '', 
-        content: '', 
-        like: '', 
-        author: '', 
+        name: '',
+        content: '',
+        score: '',
     });
 
     const [form] = Form.useForm();
@@ -36,7 +37,7 @@ const AdminNews = () => {
     const mutationUpdate = useMutationHooks(
         (data) => {
             const { id, access_token, ...rests } = data
-            const res = NewsService.updateNews( id, access_token, { ...rests })
+            const res = AnswerService.updateAnswer( id, access_token, { ...rests })
             return res
         }
     )
@@ -44,36 +45,23 @@ const AdminNews = () => {
     const mutationDelete = useMutationHooks(
         (data) => {
             const { id, access_token } = data
-            const res = NewsService.deleteNews( id, access_token)
+            const res = AnswerService.deleteAnswer( id, access_token)
             return res
         }
     )
 
-<<<<<<< HEAD
-=======
     const mutationDeleteMany = useMutationHooks(
         (data) => {
             const { access_token, ...ids } = data
-            const res = NewsService.deleteManyNews( ids, access_token)
+            const res = AnswerService.deleteManyAnswer( ids, access_token)
             return res
         }
     )
 
->>>>>>> 09a384dec923a768188f78a69ed32d1851d6c782
-    const getAllNews = async () => {
-        const res = await NewsService.getAllNews()
-        return res
-    }
-<<<<<<< HEAD
-    
-    const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
-    const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
-=======
-
-    const handleDeleteManyNews = (ids) => {
+    const handleDeleteManyLesson = (ids) => {
         mutationDeleteMany.mutate({ ids: ids, access_token: user?.access_token }, {
             onSettled: () => {
-                queryNews.refetch()
+                queryAnswer.refetch()
             }
         })
     }
@@ -81,47 +69,50 @@ const AdminNews = () => {
     const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
     const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
->>>>>>> 09a384dec923a768188f78a69ed32d1851d6c782
 
-    const queryNews = useQuery({queryKey : ['news'], queryFn : getAllNews})
-    const { isLoading : isLoadingNews, data : allNews } = queryNews
+    const fetchCountAssignment = async (context) => {
+        const id = context?.queryKey && context?.queryKey[1]
+        if (id) {
+            const res = await AssignmentService.countAllAssignment(id)
+            return res
+        }
+    }
 
-    const fetchGetDetailsNews = async (rowSelected) => {
-        const res = await NewsService.getDetailsNews(rowSelected)
+    const queryAssignment = useQuery(['count-assignments', course?._id], fetchCountAssignment, { enabled: !!course?._id })
+    const { isLoadingLesson, data: countAssignments } =  queryAssignment
+
+    const fetchGetDetailsAnswer = async (rowSelected) => {
+        const res = await AnswerService.getDetailsAnswer(rowSelected)
         if (res?.data){
-            setstateNewsDetails({
+            setstateAnswerDetails({
                 title: res?.data?.title,
+                name: res?.data?.studentId?.name,
                 content: res?.data?.content,
-                like: res?.data?.like,
-                author: res?.data?.author,
+                score: res?.data?.score,
             })
         }
         setIsLoadingUpdate(false)
     }
 
     useEffect(() =>{
-        form.setFieldsValue(stateNewsDetails)
-    },[form, stateNewsDetails])
+        form.setFieldsValue(stateAnswerDetails)
+    },[form, stateAnswerDetails])
 
     useEffect(() =>{
         if (rowSelected && isOpenDrawer) {
             setIsLoadingUpdate(true)
-            fetchGetDetailsNews(rowSelected)
+            fetchGetDetailsAnswer(rowSelected)
         }
-<<<<<<< HEAD
-    },[rowSelected])
-=======
     },[rowSelected, isOpenDrawer])
->>>>>>> 09a384dec923a768188f78a69ed32d1851d6c782
 
-    const handleDetailsNews = () => {
+    const handleDetailsLesson = () => {
         setIsOpenDrawer(true)
     }
 
     const renderAction = () => {
         return (
             <div style={{ fontSize: '24px' }}>
-                <EditOutlined style={{ color: 'orange', cursor: 'pointer' }} onClick={handleDetailsNews}/>
+                <EditOutlined style={{ color: 'orange', cursor: 'pointer' }} onClick={handleDetailsLesson}/>
                 <DeleteOutlined style={{ color: 'red', cursor: 'pointer', marginLeft: '8px' }} onClick={() => { setIsModalOpenDelete(true) }}/>
             </div>
         )
@@ -130,6 +121,7 @@ const AdminNews = () => {
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
     };
+
     const handleReset = (clearFilters) => {
         clearFilters();
     };
@@ -194,34 +186,28 @@ const AdminNews = () => {
     });
 
     const handleChange = (pagination, filters, sorter) => {
-        console.log('Various parameters', pagination, filters, sorter);
         setFilteredInfo(filters);
         setSortedInfo(sorter);
     };
 
     const columns = [
         {
-          title: 'Tiêu đề',
+          title: 'Title',
           dataIndex: 'title',
-          sorter: (a, b) => a.title.length - b.title.length,
+          sorter: (a, b) => a.name.length - b.name.length,
           ...getColumnSearchProps('title'),
         },
         {
-            title: 'Nội dung',
-            dataIndex: 'content',
-            sorter: (a, b) => a.content.length - b.content.length,
-            ...getColumnSearchProps('content'),
+          title: 'Name',
+          dataIndex: 'name',
         },
         {
-            title: 'Lượt thích',
-            dataIndex: 'like',
-            sorter: (a, b) => a.like - b.like,
+          title: 'Content',
+          dataIndex: 'content',
         },
         {
-            title: 'Tác giả',
-            dataIndex: 'author',
-            sorter: (a, b) => a.author.length - b.author.length,
-            ...getColumnSearchProps('author'),
+            title: 'Score',
+            dataIndex: 'score',
         },
         {
           title: 'Action',
@@ -229,13 +215,8 @@ const AdminNews = () => {
           render: renderAction,
         },
     ];
-    
-    const dataTable = allNews?.data?.length && allNews?.data?.map((news) => {
-      return {
-        ...news,
-        key: news._id
-      }
-    })
+
+    let dataTableFilter = []
 
     useEffect(() => {
         if(isSuccessUpdated && dataUpdated?.status === 'OK'){
@@ -255,8 +236,6 @@ const AdminNews = () => {
         }
     },[isSuccessDeleted, isErrorDeleted])
 
-<<<<<<< HEAD
-=======
     useEffect(() => {
         if(isSuccessDeletedMany && dataDeletedMany?.status === 'OK'){
             message.success()
@@ -265,14 +244,13 @@ const AdminNews = () => {
         }
     },[isSuccessDeletedMany, isErrorDeletedMany])
 
->>>>>>> 09a384dec923a768188f78a69ed32d1851d6c782
     const handleCancelDrawer = () => {
         setIsOpenDrawer(false);
-        setstateNewsDetails({
+        setstateAnswerDetails({
             title: '', 
-            content: '', 
-            like: '', 
-            author: '', 
+            name: '',
+            content: '',
+            score: '',
         })
         form.resetFields()
     }
@@ -281,38 +259,76 @@ const AdminNews = () => {
         setIsModalOpenDelete(false);
     }
 
-    const handleDeleteUser = () => {
+    const handleDeleteLesson = () => {
         mutationDelete.mutate({ id: rowSelected, access_token: user?.access_token }, {
             onSettled: () => {
-                queryNews.refetch()
+                queryAnswer.refetch()
             }
         })
     }
 
     const handleOnChangeDetails = (e) => {
-        setstateNewsDetails({
-            ...stateNewsDetails,
+        setstateAnswerDetails({
+            ...stateAnswerDetails,
             [e.target.name] : e.target.value
         })
     }
 
-    const onUpdateUser = () => {
-        mutationUpdate.mutate({ id: rowSelected, access_token: user?.access_token, ...stateNewsDetails }, {
+    const onUpdateLesson = () => {
+        mutationUpdate.mutate({ id: rowSelected, access_token: user?.access_token, ...stateAnswerDetails }, {
             onSettled: () => {
-                queryNews.refetch()
+                queryAnswer.refetch()
             }
         })
     }
 
+    const fetchCountAnswer = async (context) => {
+        const courseId = context?.queryKey && context?.queryKey[1]
+        const assignmentId = context?.queryKey && context?.queryKey[2]
+        if (courseId && assignmentId) {
+            const res = await AnswerService.countAllAnswerInstructor({ courseId, assignmentId })
+            return res
+        }
+    }
+
+    const queryAnswer = useQuery(['count-answers', course?._id, idAssignmentSelected], fetchCountAnswer, { enabled: !!idAssignmentSelected })
+    const { isLoadingAnswer, data: countAnswers } = queryAnswer
+
+    dataTableFilter = countAnswers?.data?.length && countAnswers?.data?.map((countAnswer) => {
+        return {
+          ...countAnswer,
+          name: countAnswer.studentId.name,
+          key: countAnswer._id
+        }
+    })
+
+    const resultCourses = countAssignments?.data?.map((item, index) => ({
+        value: item._id,
+        label: item.title,
+    }));
+
+    const onChange = (value) => {
+        setIdAssignmentSelected(value)
+    };
+
+    const filterOption = (input, option) =>
+        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+
     return (
         <div>
-            <WrapperHeader>Quản lý tin tức</WrapperHeader>
+            <WrapperHeader>Điểm số</WrapperHeader>
+            <Select
+                style={{ marginTop: '12px', minWidth: '300px', maxWidth: '300px' }}
+                showSearch
+                placeholder="Chọn bài tập"
+                optionFilterProp="children"
+                onChange={onChange}
+                filterOption={filterOption}
+                options={resultCourses}
+            />
+            <br></br>
             <div style={{ marginTop: '16px' }}>
-<<<<<<< HEAD
-                <TableComponent onChange={handleChange} columns={columns} isLoading={isLoadingNews} data={dataTable} onRow={(record, rowIndex) => {
-=======
-                <TableComponent handleDeleteMany={handleDeleteManyNews} onChange={handleChange} columns={columns} isLoading={isLoadingNews} data={dataTable} onRow={(record, rowIndex) => {
->>>>>>> 09a384dec923a768188f78a69ed32d1851d6c782
+                <TableComponent handleDeleteMany={handleDeleteManyLesson} onChange={handleChange} columns={columns} isLoading={isLoadingAnswer} data={dataTableFilter} onRow={(record, rowIndex) => {
                     return {
                         onClick: (event) => {
                             setRowSelected(record._id)
@@ -321,10 +337,10 @@ const AdminNews = () => {
                 }}/>
             </div>
 
-            <DrawerComponent forceRender title='Cập nhật tin tức' isOpen={isOpenDrawer} onClose={() => setIsOpenDrawer(false)} width= '50%'>
+            <DrawerComponent forceRender title='Chấm điểm' isOpen={isOpenDrawer} onClose={() => setIsOpenDrawer(false)} width= '50%'>
                 <LoadingComponent isLoading={isLoadingUpdated || isLoadingUpdate}>
                     <Form
-                        name="basic"
+                        name="basic1"
                         labelCol={{
                         span: 6,
                         }}
@@ -334,45 +350,40 @@ const AdminNews = () => {
                         style={{
                         maxWidth: 600,
                         }}
-                        onFinish={onUpdateUser}
+                        onFinish={onUpdateLesson}
                         autoComplete="off"
                         form={form}
                     >
                         <Form.Item
-                        label="Tiêu đề"
-                        name="title"
-                        rules={[
-                            {
-                            required: true,
-                            message: 'Xin hãy nhập tiêu đề khóa học!',
-                            },
-                        ]}
+                            label="Tên học viên"
+                            name="name"
                         >
-                            <InputComponent 
-                                size='large' 
-                                bordered={true}
-                                value={stateNewsDetails.title}
-                                onChange={handleOnChangeDetails}
-                                name="title"
-                            />
+                            <p>{stateAnswerDetails.name}</p>
                         </Form.Item>
 
                         <Form.Item
-                        label="Nội dung"
-                        name="content"
-                        rules={[
-                            {
-                            required: true,
-                            message: 'Xin hãy nhập nội dung tin tức!',
-                            },
-                        ]}
+                            label="Câu trả lời"
+                            name="content"
+                        >
+                            <p>{stateAnswerDetails.content}</p>
+                        </Form.Item>
+
+                        <Form.Item
+                            label="Điểm"
+                            name="score"
+                            rules={[
+                                {
+                                required: true,
+                                message: 'Xin hãy nhập điểm!',
+                                },
+                            ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateNewsDetails.content}
+                                value={stateAnswerDetails.score}
                                 onChange={handleOnChangeDetails}
-                                name="content"
+                                name="score"
                             />
                         </Form.Item>
 
@@ -390,13 +401,13 @@ const AdminNews = () => {
                 </LoadingComponent>
             </DrawerComponent>
 
-            <ModalComponent forceRender title="Xóa tin tức" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteUser} >
+            <ModalComponent title="Xóa câu trả lời" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteLesson} >
                 <LoadingComponent isLoading={isLoadingDeleted}>
-                    <div>Bạn có chắc chắn muốn xóa tin tức này ?</div>
+                    <div>Bạn có chắc chắn muốn xóa câu trả lời này ?</div>
                 </LoadingComponent>
             </ModalComponent>
         </div>
     )
 }
 
-export default AdminNews
+export default InstructorScore

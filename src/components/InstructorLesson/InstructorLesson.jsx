@@ -1,15 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { WrapperHeader } from './style';
-<<<<<<< HEAD
 import { Button, Form, Space } from 'antd';
-import { DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
-=======
-import { Button, Form, Select, Space } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
->>>>>>> 09a384dec923a768188f78a69ed32d1851d6c782
 import TableComponent from '../TableComponent/TableComponent';
-import InputComponent from '../InputComponent/InputComponent'
-import * as UserService from '../../services/UserService';
+import InputComponent from '../InputComponent/InputComponent';
+import * as LessonService from '../../services/LessonService';
 import { useMutationHooks } from '../../hooks/useMutationHook';
 import LoadingComponent from '../LoadingComponent/LoadingComponent';
 import * as message from '../../components/MessageComponent/MessageComponent';
@@ -18,9 +13,9 @@ import DrawerComponent from '../DrawerComponent/DrawerComponent';
 import { useSelector } from 'react-redux';
 import ModalComponent from '../ModalComponent/ModalComponent';
 
-const AdminUser = () => {
+const InstructorLesson = ({course}) => {
     const user = useSelector((state) => state?.user)
-    // const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [rowSelected, setRowSelected] = useState('');
     const [isOpenDrawer, setIsOpenDrawer] = useState(false);
     const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
@@ -28,35 +23,36 @@ const AdminUser = () => {
     const searchInput = useRef(null);
     const [filteredInfo, setFilteredInfo] = useState({});
     const [sortedInfo, setSortedInfo] = useState({});
-    // const [stateUser, setStateUser] = useState({
-    //     name: '', 
-    //     email: '', 
-    //     password: '', 
-    //     role: '', 
-    //     phone: '', 
-    // });
-
-    const [stateUserDetails, setStateUserDetails] = useState({
+    const [stateLesson, setstateLesson] = useState({
         name: '', 
-        email: '', 
-        role: '', 
-        phone: '', 
+        description: '', 
+        videoId: '', 
+        courseId: course?._id,
+        rating: '',
+    });
+
+    const [stateLessonDetails, setstateLessonDetails] = useState({
+        name: '', 
+        description: '', 
+        videoId: '', 
+        courseId: course?._id,
+        rating: '',
     });
 
     const [form] = Form.useForm();
 
-    // const mutation = useMutationHooks(
-    //     (data) => {
-    //         const { name, email, password, role, phone } = data
-    //         const res = UserService.createUser({name, email, password, role, phone})
-    //         return res
-    //     }
-    // )
+    const mutation = useMutationHooks(
+        (data) => {
+            const { name, description, videoId, courseId, rating } = data
+            const res = LessonService.createLesson({name, description, videoId, courseId, rating})
+            return res
+        }
+    )
 
     const mutationUpdate = useMutationHooks(
         (data) => {
             const { id, access_token, ...rests } = data
-            const res = UserService.updateUser( id, access_token, { ...rests })
+            const res = LessonService.updateLesson( id, access_token, { ...rests })
             return res
         }
     )
@@ -64,7 +60,7 @@ const AdminUser = () => {
     const mutationDelete = useMutationHooks(
         (data) => {
             const { id, access_token } = data
-            const res = UserService.deleteUser( id, access_token)
+            const res = LessonService.deleteLesson( id, access_token)
             return res
         }
     )
@@ -72,65 +68,67 @@ const AdminUser = () => {
     const mutationDeleteMany = useMutationHooks(
         (data) => {
             const { access_token, ...ids } = data
-            const res = UserService.deleteManyUser( ids, access_token)
+            const res = LessonService.deleteManyLesson( ids, access_token)
             return res
         }
     )
 
-    const getAllUsers = async () => {
-        const access_token = user.access_token
-        const res = await UserService.getAllUser(access_token)
-        return res
-    }
-
-    const handleDeleteManyUser = (ids) => {
+    const handleDeleteManyLesson = (ids) => {
         mutationDeleteMany.mutate({ ids: ids, access_token: user?.access_token }, {
             onSettled: () => {
-                queryUser.refetch()
+                queryLesson.refetch()
             }
         })
     }
     
-    // const { data, isLoading, isSuccess, isError } = mutation
+    const { data, isLoading, isSuccess, isError } = mutation
     const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDelete
     const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeleteMany
 
-    const queryUser = useQuery({queryKey : ['user'], queryFn : getAllUsers})
-    const { isLoading : isLoadingUsers, data : users } = queryUser
+    const fetchCountLesson = async (context) => {
+        const id = context?.queryKey && context?.queryKey[1]
+        if (id) {
+            const res = await LessonService.countAllLesson(id)
+            return res
+        }
+    }
 
-    const fetchGetDetailsUser = async (rowSelected, token) => {
-        const res = await UserService.getDetailsUser(rowSelected, token)
+    const queryLesson = useQuery(['count-lessons', course?._id], fetchCountLesson, { enabled: !!course?._id })
+    const { isLoadingLesson, data: countLessons } =  queryLesson
+
+    const fetchGetDetailsLesson = async (rowSelected) => {
+        const res = await LessonService.getDetailsLesson(rowSelected)
         if (res?.data){
-            setStateUserDetails({
+            setstateLessonDetails({
                 name: res?.data?.name,
-                email: res?.data?.email,
-                phone: res?.data?.phone,
-                role: res?.data?.role,
+                description: res?.data?.description, 
+                videoId: res?.data?.videoId, 
+                rating: res?.data?.rating,
             })
         }
         setIsLoadingUpdate(false)
     }
 
     useEffect(() =>{
-        form.setFieldsValue(stateUserDetails)
-    },[form, stateUserDetails])
+        form.setFieldsValue(stateLessonDetails)
+    },[form, stateLessonDetails])
 
     useEffect(() =>{
         if (rowSelected && isOpenDrawer) {
             setIsLoadingUpdate(true)
-            fetchGetDetailsUser(rowSelected, user?.access_token)
+            fetchGetDetailsLesson(rowSelected)
         }
     },[rowSelected, isOpenDrawer])
 
-    const handleDetailsUser = () => {
+    const handleDetailsLesson = () => {
         setIsOpenDrawer(true)
     }
 
     const renderAction = () => {
         return (
             <div style={{ fontSize: '24px' }}>
-                <EditOutlined style={{ color: 'orange', cursor: 'pointer' }} onClick={handleDetailsUser}/>
+                <EditOutlined style={{ color: 'orange', cursor: 'pointer' }} onClick={handleDetailsLesson}/>
                 <DeleteOutlined style={{ color: 'red', cursor: 'pointer', marginLeft: '8px' }} onClick={() => { setIsModalOpenDelete(true) }}/>
             </div>
         )
@@ -209,27 +207,39 @@ const AdminUser = () => {
 
     const columns = [
         {
-          title: 'Email',
-          dataIndex: 'email',
-          sorter: (a, b) => a.email.length - b.email.length,
-          ...getColumnSearchProps('email'),
+          title: 'Name',
+          dataIndex: 'name',
+          sorter: (a, b) => a.name.length - b.name.length,
+          ...getColumnSearchProps('name'),
         },
         {
-            title: 'Name',
-            dataIndex: 'name',
-            sorter: (a, b) => a.name.length - b.name.length,
-            ...getColumnSearchProps('name'),
+          title: 'Description',
+          dataIndex: 'description',
         },
         {
-            title: 'Phone',
-            dataIndex: 'phone',
-            sorter: (a, b) => a.phone - b.phone,
+          title: 'VideoId',
+          dataIndex: 'videoId',
         },
         {
-            title: 'Role',
-            dataIndex: 'role',
-            sorter: (a, b) => a.role.length - b.role.length,
-            ...getColumnSearchProps('role'),
+          title: 'Rating',
+          dataIndex: 'rating',
+          sorter: (a, b) => a.rating - b.rating,
+          filters: [
+            {
+              text: '<=3',
+              value: '<=3',
+            },
+            {
+              text: '>=3',
+              value: '>=3',
+            },
+          ],
+          onFilter: (value, record) => {
+            if (value === '<=3') {
+                return record.price <= 3
+            }
+            return record.price >= 3
+          },
         },
         {
           title: 'Action',
@@ -237,22 +247,22 @@ const AdminUser = () => {
           render: renderAction,
         },
     ];
-    
-    const dataTable = users?.data?.length && users?.data?.map((user) => {
-      return {
-        ...user,
-        key: user._id
-      }
+
+    const dataTableFilter = countLessons?.data?.length && countLessons?.data?.map((countLesson) => {
+        return {
+          ...countLesson,
+          key: countLesson._id
+        }
     })
 
-    // useEffect(() => {
-    //     if(isSuccess && data?.status === 'OK'){
-    //         message.success()
-    //         handleCancel()
-    //     } else if (isError) {
-    //         message.error()
-    //     }
-    // },[isSuccess, isError])
+    useEffect(() => {
+        if(isSuccess && data?.status === 'OK'){
+            message.success()
+            handleCancel()
+        } else if (isError) {
+            message.error()
+        }
+    },[isSuccess, isError])
 
     useEffect(() => {
         if(isSuccessUpdated && dataUpdated?.status === 'OK'){
@@ -280,29 +290,28 @@ const AdminUser = () => {
         }
     },[isSuccessDeletedMany, isErrorDeletedMany])
 
-    // const showModal = () => {
-    //     setIsModalOpen(true);
-    // };
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
 
-    // const handleCancel = () => {
-    //     setIsModalOpen(false);
-    //     setStateUser({
-    //         name: '', 
-    //         email: '', 
-    //         password: '', 
-    //         role: '', 
-    //         phone: '',
-    //     })
-    //     form.resetFields()
-    // };
+    const handleCancel = () => {
+        setIsModalOpen(false);
+        setstateLesson({
+            name: '', 
+            description: '', 
+            videoId: '', 
+            rating: '',
+        })
+        form.resetFields()
+    };
 
     const handleCancelDrawer = () => {
         setIsOpenDrawer(false);
-        setStateUserDetails({
+        setstateLessonDetails({
             name: '', 
-            email: '', 
-            phone: '', 
-            role: '', 
+            description: '', 
+            videoId: '', 
+            rating: '',
         })
         form.resetFields()
     }
@@ -311,67 +320,55 @@ const AdminUser = () => {
         setIsModalOpenDelete(false);
     }
 
-    const handleDeleteUser = () => {
+    const handleDeleteLesson = () => {
         mutationDelete.mutate({ id: rowSelected, access_token: user?.access_token }, {
             onSettled: () => {
-                queryUser.refetch()
+                queryLesson.refetch()
             }
         })
     }
 
-    // const onFinish = () => {
-    //     mutation.mutate(stateUser, {
-    //         onSettled: () => {
-    //             queryUser.refetch()
-    //         }
-    //     })
-    // }
+    const onFinish = () => {
+        mutation.mutate(stateLesson, {
+            onSettled: () => {
+                queryLesson.refetch()
+            }
+        })
+    }
 
-    // const handleOnChange = (e) => {
-    //     setStateUser({
-    //         ...stateUser,
-    //         [e.target.name] : e.target.value
-    //     })
-    // }
-
-    const handleOnChangeDetails = (e) => {
-        setStateUserDetails({
-            ...stateUserDetails,
+    const handleOnChange = (e) => {
+        setstateLesson({
+            ...stateLesson,
+            courseId: course?._id,
             [e.target.name] : e.target.value
         })
     }
 
-    const onUpdateUser = () => {
-        mutationUpdate.mutate({ id: rowSelected, access_token: user?.access_token, ...stateUserDetails }, {
+    const handleOnChangeDetails = (e) => {
+        setstateLessonDetails({
+            ...stateLessonDetails,
+            courseId: course?._id,
+            [e.target.name] : e.target.value
+        })
+    }
+
+    const onUpdateLesson = () => {
+        mutationUpdate.mutate({ id: rowSelected, access_token: user?.access_token, ...stateLessonDetails }, {
             onSettled: () => {
-                queryUser.refetch()
+                queryLesson.refetch()
             }
         })
     }
 
-    const onChange = (value) => {
-        setStateUserDetails({
-            ...stateUserDetails,
-            role : value
-        })
-    };
-
-    const onSearch = (value) => {
-        console.log('search:', value);
-    };
-    
-    // Filter `option.label` match the user type `input`
-    const filterOption = (input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
-
     return (
         <div>
-            <WrapperHeader>Quản lý tài khoản</WrapperHeader>
-            {/* <Button onClick={showModal} style={{ marginTop: '12px', borderColor: '#404040', height: '60px', width: '60px', borderRadius: '6px' }}>
+            <WrapperHeader>Quản lý bài học</WrapperHeader>
+            <br></br>
+            <Button onClick={showModal} style={{ marginTop: '12px', borderColor: '#404040', height: '60px', width: '60px', borderRadius: '6px' }}>
                 <PlusOutlined style={{ fontSize: '2.4rem', color: '#404040' }} />
-            </Button> */}
+            </Button>
             <div style={{ marginTop: '16px' }}>
-                <TableComponent handleDeleteMany={handleDeleteManyUser} onChange={handleChange} columns={columns} isLoading={isLoadingUsers} data={dataTable} onRow={(record, rowIndex) => {
+                <TableComponent handleDeleteMany={handleDeleteManyLesson} onChange={handleChange} columns={columns} isLoading={isLoadingLesson} data={dataTableFilter} onRow={(record, rowIndex) => {
                     return {
                         onClick: (event) => {
                             setRowSelected(record._id)
@@ -379,11 +376,10 @@ const AdminUser = () => {
                     };
                 }}/>
             </div>
-
-            {/* <ModalComponent title="Tạo tài khoản" footer={null} open={isModalOpen} onCancel={handleCancel}>
+            <ModalComponent forceRender title="Tạo bài học" footer={null} open={isModalOpen} onCancel={handleCancel}>
                 <LoadingComponent isLoading={isLoading}>
                     <Form
-                        name="modalForm"
+                        name="basic"
                         labelCol={{
                         span: 6,
                         }}
@@ -398,97 +394,59 @@ const AdminUser = () => {
                         form={form}
                     >
                         <Form.Item
-                        label="Tên người dùng"
+                        label="Tên bài học"
                         name="name"
                         rules={[
                             {
                             required: true,
-                            message: 'Xin hãy nhập tên của người dùng!',
+                            message: 'Xin hãy nhập tên của bài học!',
                             },
                         ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateUser.name}
+                                value={stateLesson.name}
                                 onChange={handleOnChange}
                                 name="name"
                             />
                         </Form.Item>
 
                         <Form.Item
-                        label="Email"
-                        name="email"
+                        label="Mô tả"
+                        name="description"
                         rules={[
                             {
                             required: true,
-                            message: 'Xin hãy nhập email của người dùng!',
+                            message: 'Xin hãy nhập mô tả của bài học!',
                             },
                         ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateUser.email}
+                                value={stateLesson.description}
                                 onChange={handleOnChange}
-                                name="email"
+                                name="description"
                             />
                         </Form.Item>
 
                         <Form.Item
-                        label="Password"
-                        name="password"
+                        label="Video"
+                        name="videoId"
                         rules={[
                             {
                             required: true,
-                            message: 'Xin hãy nhập password của người dùng!',
+                            message: 'Xin hãy nhập video ID bài học!',
                             },
                         ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateUser.password}
+                                value={stateLesson.videoId}
                                 onChange={handleOnChange}
-                                name="password"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                        label="Vai trò"
-                        name="role"
-                        rules={[
-                            {
-                            required: true,
-                            message: 'Xin hãy nhập vai trò của người dùng!',
-                            },
-                        ]}
-                        >
-                            <InputComponent 
-                                size='large' 
-                                bordered={true}
-                                value={stateUser.role}
-                                onChange={handleOnChange}
-                                name="role"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                        label="Số điện thoại"
-                        name="phone"
-                        rules={[
-                            {
-                            required: true,
-                            message: 'Xin hãy nhập số điện thoại của người dùng!',
-                            },
-                        ]}
-                        >
-                            <InputComponent 
-                                size='large' 
-                                bordered={true}
-                                value={stateUser.phone}
-                                onChange={handleOnChange}
-                                name="phone"
+                                name="videoId"
                             />
                         </Form.Item>
 
@@ -499,17 +457,17 @@ const AdminUser = () => {
                             }}
                             >
                             <Button type="primary" htmlType="submit">
-                                Tạo tài khoản
+                                Đăng bài học
                             </Button>
                         </Form.Item>
                     </Form>
                 </LoadingComponent>
-            </ModalComponent> */}
+            </ModalComponent>
 
-            <DrawerComponent forceRender title='Cập nhật thông tin người dùng' isOpen={isOpenDrawer} onClose={() => setIsOpenDrawer(false)} width= '50%'>
+            <DrawerComponent title='Cập nhật bài học' isOpen={isOpenDrawer} onClose={() => setIsOpenDrawer(false)} width= '50%'>
                 <LoadingComponent isLoading={isLoadingUpdated || isLoadingUpdate}>
                     <Form
-                        name="drawer"
+                        name="basic1"
                         labelCol={{
                         span: 6,
                         }}
@@ -519,105 +477,64 @@ const AdminUser = () => {
                         style={{
                         maxWidth: 600,
                         }}
-                        onFinish={onUpdateUser}
+                        onFinish={onUpdateLesson}
                         autoComplete="off"
                         form={form}
                     >
                         <Form.Item
-                        label="Tên người dùng"
+                        label="Tên bài học"
                         name="name"
                         rules={[
                             {
                             required: true,
-                            message: 'Xin hãy nhập tên của khóa học!',
+                            message: 'Xin hãy nhập tên của bài học!',
                             },
                         ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateUserDetails.name}
+                                value={stateLesson.name}
                                 onChange={handleOnChangeDetails}
                                 name="name"
                             />
                         </Form.Item>
 
                         <Form.Item
-                        label="Email"
-                        name="email"
+                        label="Mô tả"
+                        name="description"
                         rules={[
                             {
                             required: true,
-                            message: 'Xin hãy nhập email người dùng!',
+                            message: 'Xin hãy nhập mô tả của bài học!',
                             },
                         ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateUserDetails.email}
+                                value={stateLesson.description}
                                 onChange={handleOnChangeDetails}
-                                name="email"
+                                name="description"
                             />
                         </Form.Item>
 
                         <Form.Item
-                        label="Số điện thoại"
-                        name="phone"
+                        label="Video"
+                        name="videoId"
                         rules={[
                             {
                             required: true,
-                            message: 'Xin hãy nhập số điện thoại người dùng!',
+                            message: 'Xin hãy nhập video ID bài học!',
                             },
                         ]}
                         >
                             <InputComponent 
                                 size='large' 
                                 bordered={true}
-                                value={stateUserDetails.phone}
+                                value={stateLesson.videoId}
                                 onChange={handleOnChangeDetails}
-                                name="phone"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                        label="Vai trò"
-                        name="role"
-                        rules={[
-                            {
-                            required: true,
-                            message: 'Xin hãy nhập vai trò người dùng!',
-                            },
-                        ]}
-                        >
-                            {/* <InputComponent 
-                                size='large' 
-                                bordered={true}
-                                value={stateUserDetails.role}
-                                onChange={handleOnChangeDetails}
-                                name="role"
-                            /> */}
-                            <Select
-                                showSearch
-                                placeholder="Chọn vai trò"
-                                optionFilterProp="children"
-                                onChange={onChange}
-                                onSearch={onSearch}
-                                filterOption={filterOption}
-                                options={[
-                                {
-                                    value: 'admin',
-                                    label: 'admin',
-                                },
-                                {
-                                    value: 'student',
-                                    label: 'student',
-                                },
-                                {
-                                    value: 'instructor',
-                                    label: 'instructor',
-                                },
-                                ]}
+                                name="videoId"
                             />
                         </Form.Item>
 
@@ -635,13 +552,13 @@ const AdminUser = () => {
                 </LoadingComponent>
             </DrawerComponent>
 
-            <ModalComponent title="Xóa người dùng" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteUser} >
+            <ModalComponent title="Xóa bài học" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteLesson} >
                 <LoadingComponent isLoading={isLoadingDeleted}>
-                    <div>Bạn có chắc chắn muốn xóa tài khoản này ?</div>
+                    <div>Bạn có chắc chắn muốn xóa bài học này ?</div>
                 </LoadingComponent>
             </ModalComponent>
         </div>
     )
 }
 
-export default AdminUser
+export default InstructorLesson
